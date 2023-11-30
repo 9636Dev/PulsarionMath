@@ -1,0 +1,3 @@
+[submodule "vendor/xsimd"]
+	path = vendor/xsimd
+	url = https://github.com/xtensor-stack/xsimd
