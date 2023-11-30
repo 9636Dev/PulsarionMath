@@ -71,9 +71,64 @@ namespace Pulsarion::Math
 
 #ifdef PULSARION_MATH_USE_SIMD
         Matrix operator*(const Matrix& other) const noexcept
-        requires std::same_as<T, float> || std::same_as<T, double>
+        requires std::same_as<T, float_normalp> || (std::same_as<PULSARION_MATH_SIMD, xsimd::avx> && std::same_as<T, float_highp>)
         {
-            static constexpr size_t batchSize = xsimd::batch<T>::size;
+            PULSARION_MATH_ALIGN std::array<T, 4> temp{};
+            xsimd::batch<T> this_batch_rows[4];
+            xsimd::batch<T> other_batch_cols[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                temp = { data[i], data[i + 4], data[i + 8], data[i + 12] };
+                this_batch_rows[i] = xsimd::batch<T>::load_aligned(temp.data());
+                other_batch_cols[i] = xsimd::batch<T>::load_unaligned(other.columns[i].data.data());
+            }
+
+            Matrix result;
+            for (int row = 0; row < 4; ++row)
+            {
+                for (int col = 0; col < 4; ++col)
+                {
+                    xsimd::batch<float> batch_result = this_batch_rows[row] * other_batch_cols[col];
+                    result.data[row + 4 * col] = reduce_add(batch_result);
+                }
+            }
+
+
+            return result;
+        }
+
+        Matrix operator*(const Matrix& other) const noexcept
+            // ReSharper disable once CppRedundantBooleanExpressionArgument (Can be AVX on some platforms)
+            requires (!std::same_as<PULSARION_MATH_SIMD, xsimd::avx> && std::same_as<T, float_highp>)
+        {
+            PULSARION_MATH_ALIGN std::array<double, 2> temp{};
+            xsimd::batch<double> this_batch_rows[8];
+            xsimd::batch<double> other_batch_cols[8];
+
+            for (int i = 0; i < 4; i++)
+            {
+                temp = { data[i], data[i + 4] };
+                this_batch_rows[i * 2] = xsimd::batch<T>::load_aligned(temp.data());
+                temp = { data[i + 8], data[i + 12] };
+                this_batch_rows[i * 2 + 1] = xsimd::batch<T>::load_aligned(temp.data());
+                other_batch_cols[i * 2] = xsimd::batch<T>::load_unaligned(other.columns[i].data.data());
+                other_batch_cols[i * 2 + 1] = xsimd::batch<T>::load_unaligned(&other.columns[i].data[2]);
+            }
+
+            Matrix result;
+            for (int row = 0; row < 4; ++row)
+            {
+                for (int col = 0; col < 4; ++col)
+                {
+                    xsimd::batch<double> batch_result1 = this_batch_rows[row * 2] * other_batch_cols[col * 2];
+                    xsimd::batch<double> batch_result2 = this_batch_rows[row * 2 + 1] * other_batch_cols[col * 2 + 1];
+                    result.data[row + 4 * col] = reduce_add(batch_result1) + reduce_add(batch_result2);
+                }
+            }
+
+
+            return result;
         }
 #endif
 
@@ -94,22 +149,17 @@ namespace Pulsarion::Math
 
 #ifdef PULSARION_MATH_USE_SIMD
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
-        requires std::same_as<T, float> || std::same_as<T, double>
+        requires std::same_as<T, float_normalp> || (std::same_as<PULSARION_MATH_SIMD, xsimd::avx> && std::same_as<T, float_highp>)
         {
             Vector<T, 4> result;
-            static constexpr size_t batchSize = xsimd::batch<T>::size;
 
-            for (size_t i = 0; i < 4; ++i) {
-                xsimd::batch<T> sum = xsimd::batch<T>(0);
-
-                for (size_t j = 0; j < 4; j += batchSize) {
-                    xsimd::batch<T> batch_vec = xsimd::load_unaligned(&other.data[j]);
-                    xsimd::batch<T> batch_mat = xsimd::load_unaligned(&data[i * 4 + j]);
-
-                    sum = sum + batch_mat * batch_vec;
-                }
-
-                sum.store_aligned(&result[i]);
+            xsimd::batch<T> batch_other, batch_col;
+            batch_other = xsimd::batch<T>::load_aligned(other.data.data());
+            for (int i = 0;i < 4; ++i)
+            {
+                batch_col = xsimd::batch<T>::load_unaligned(columns[i].data.data());
+                xsimd::batch<float> batch_result = batch_col * batch_other;
+                result.data[i] = reduce_add(batch_result);
             }
 
             return result;
@@ -118,15 +168,12 @@ namespace Pulsarion::Math
 
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
         {
-            Vector<T, 4> result;
-            for (int row = 0; row < 4; ++row) {
-                result[row] =
-                    this[0][row] * other[0] +
-                    this[1][row] * other[1] +
-                    this[2][row] * other[2] +
-                    this[3][row] * other[3];
-            }
-            return result;
+            return {
+                data[0] * other.x + data[1] * other.y + data[2] * other.z + data[3] * other.w,
+                data[4] * other.x + data[5] * other.y + data[6] * other.z + data[7] * other.w,
+                data[8] * other.x + data[9] * other.y + data[10] * other.z + data[11] * other.w,
+                data[12] * other.x + data[13] * other.y + data[14] * other.z + data[15] * other.w
+            };
         }
 
         const Vector<T, 4>& operator[](size_t index) const noexcept
@@ -141,7 +188,7 @@ namespace Pulsarion::Math
             return columns[index];
         }
 
-        std::string ToString()
+        [[nodiscard]] std::string ToString() const
         {
             std::stringstream ss;
             ss << "Matrix4x4(";
@@ -163,13 +210,4 @@ namespace Pulsarion::Math
             std::array<T, 16> data;
         };
     };
-
-    using Mat4 = Matrix<float, 4, 4>;
-    using Mat4f = Matrix<float, 4, 4>;
-    using Mat4d = Matrix<double, 4, 4>;
-    using Mat4ld = Matrix<long double, 4, 4>;
-    using Mat4x4 = Matrix<float, 4, 4>;
-    using Mat4x4f = Matrix<float, 4, 4>;
-    using Mat4x4d = Matrix<double, 4, 4>;
-    using Mat4x4ld = Matrix<long double, 4, 4>;
 }

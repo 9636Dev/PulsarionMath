@@ -51,8 +51,66 @@ namespace Pulsarion::Math
             return Vector(x / scalarT, y / scalarT);
         }
 
-        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y); }
-        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y); }
+#ifdef PULSARION_MATH_USE_SIMD
+        Vector operator*(const Vector& other) const noexcept
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
+        {
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(data.data());
+            b = xsimd::batch<T>::load_aligned(other.data.data());
+            xsimd::batch<T> result = a * b;
+            Vector resultVector;
+            result.store_aligned(&resultVector);
+            return resultVector;
+        }
+
+        Vector operator*(const Vector& other) const noexcept
+        requires std::same_as<T, float_extp>
+        {
+            Vector result;
+            result.x = x * other.x;
+            result.y = y * other.y;
+            return result;
+        }
+
+        Vector operator/(const Vector& other) const noexcept
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
+        {
+            if (other.x == 0 || other.y == 0)
+                return Vector(0, 0); // Avoid division by zero
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(data.data());
+            b = xsimd::batch<T>::load_aligned(other.data.data());
+            xsimd::batch<T> result = a / b;
+            Vector resultVector;
+            result.store_aligned(&resultVector);
+            return resultVector;
+        }
+
+        Vector operator/(const Vector& other) const noexcept
+        requires std::same_as<T, float_extp>
+        {
+            if (other.x == 0 || other.y == 0)
+                return Vector(0, 0); // Avoid division by zero
+            return Vector(x / other.x, y / other.y);
+        }
+
+        // TODO: Benchmark Dot to determine if SIMD is worth it
+
+        [[nodiscard]] T Dot(const Vector& other) const noexcept
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
+        {
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(data.data());
+            b = xsimd::batch<T>::load_aligned(other.data.data());
+            xsimd::batch<T> result = a * b;
+            return reduce_add(result);
+        }
+
+        [[nodiscard]] T Dot(const Vector& other) const noexcept
+        requires std::same_as<T, float_extp> { return x * other.x + y * other.y; }
+
+#else
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y); }
         Vector operator/(const Vector& other) const noexcept
         {
@@ -60,12 +118,17 @@ namespace Pulsarion::Math
                 return Vector(0, 0); // Avoid division by zero
             return Vector(x / other.x, y / other.y);
         }
-        [[nodiscard]] Vector Cross(const Vector& other) const noexcept { return Vector(x * other.y, y * other.x); }
         [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y; }
+
+#endif
+
+        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y); }
+        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y); }
+
+        [[nodiscard]] float Cross(const Vector& other) const noexcept { return x * other.y - y * other.x; }
         [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y; }
-        [[nodiscard]] T InverseMagnitude() const noexcept { return 1 / Magnitude(); }
-        [[nodiscard]] T InverseMagnitudeLowPrecision() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
+        [[nodiscard]] T InverseMagnitudeLow() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
         {
             const T mag =  Magnitude();
@@ -89,10 +152,17 @@ namespace Pulsarion::Math
             return data[index];
         }
 
-        union
+        [[nodiscard]] std::string ToString() const
+        {
+            std::stringstream ss;
+            ss << "Vector2(" << data[0] << ", " << data[1] << ")";
+            return ss.str();
+        }
+
+        union PULSARION_MATH_ALIGN
         {
             struct { T x, y; };
-            T data[2];
+            std::array<T, 2> data;
         };
     };
 
@@ -143,12 +213,17 @@ namespace Pulsarion::Math
         Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z); }
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y, z * other.z); }
         Vector operator/(const Vector& other) const noexcept { return Vector(x / other.x, y / other.y, z / other.z); }
-        [[nodiscard]] Vector Cross(const Vector& other) const noexcept { return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x); }
-        [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y + z * other.z; }
+        [[nodiscard]] Vector Cross(const Vector& other) const noexcept
+        {
+            return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+        }
+        [[nodiscard]] T Dot(const Vector& other) const noexcept
+        {
+            return x * other.x + y * other.y + z * other.z;
+        }
         [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z; }
-        [[nodiscard]] T InverseMagnitude() const noexcept { return 1 / Magnitude(); }
-        [[nodiscard]] T InverseMagnitudeLowPrecision() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
+        [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
         {
             const T mag = Magnitude();
@@ -173,7 +248,23 @@ namespace Pulsarion::Math
             return data[index];
         }
 
-        union
+        [[nodiscard]] std::string ToString() const
+        {
+            std::stringstream ss;
+            ss << "Vector3(";
+            for (size_t i = 0; i < 3; i++)
+            {
+                ss << data[i];
+                if (i != 2)
+                {
+                    ss << ", ";
+                }
+            }
+            ss << ")";
+            return ss.str();
+        }
+
+        union PULSARION_MATH_ALIGN
         {
             struct { T x, y, z; };
             T data[3];
@@ -228,7 +319,7 @@ namespace Pulsarion::Math
         Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z, w - other.w); }
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y, z * other.z, w * other.w); }
         Vector operator/(const Vector& other) const noexcept { return Vector(x / other.x, y / other.y, z / other.z, w / other.w); }
-        [[nodiscard]] Vector Cross(const Vector& other) const noexcept
+        [[nodiscard]] Vector Cross3D(const Vector& other) const noexcept
         {
             return Vector(
                 y * other.z - z * other.y,  // x component
@@ -240,8 +331,7 @@ namespace Pulsarion::Math
         [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y + z * other.z + w * other.w; }
         [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z + w * w; }
-        [[nodiscard]] T InverseMagnitude() const noexcept { return 1 / Magnitude(); }
-        [[nodiscard]] T InverseMagnitudeLowPrecision() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
+        [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
         {
             const T mag = Magnitude();
@@ -284,7 +374,23 @@ namespace Pulsarion::Math
             return data[index];
         }
 
-        PULSARION_MATH_ALIGN union
+        [[nodiscard]] std::string ToString() const
+        {
+            std::stringstream ss;
+            ss << "Vector4(";
+            for (size_t i = 0; i < 4; i++)
+            {
+                ss << data[i];
+                if (i != 3)
+                {
+                    ss << ", ";
+                }
+            }
+            ss << ")";
+            return ss.str();
+        }
+
+        union PULSARION_MATH_ALIGN
         {
             struct { T x, y, z, w; };
             std::array<T, 4> data;
@@ -301,19 +407,4 @@ namespace Pulsarion::Math
     template class Vector<float_normalp, 4>;
     template class Vector<float_highp, 4>;
     template class Vector<float_extp, 4>;
-
-    // To string methods
-    template<float_type T, size_t Dimension>
-    std::ostream& operator<<(std::ostream& os, const Vector<T, Dimension>& vector)
-    {
-        os << "(";
-        for (size_t i = 0; i < Dimension; ++i)
-        {
-            os << vector.data[i];
-            if (i != Dimension - 1)
-                os << ", ";
-        }
-        os << ")";
-        return os;
-    }
 }
