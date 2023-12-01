@@ -315,10 +315,95 @@ namespace Pulsarion::Math
             return Vector(x / scalarT, y / scalarT, z / scalarT, w / scalarT);
         }
 
-        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y, z + other.z, w + other.w); }
-        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z, w - other.w); }
+#ifdef PULSARION_MATH_USE_SIMD
+        Vector operator*(const Vector& other) const noexcept
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        { 
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(&x);
+            b = xsimd::batch<T>::load_aligned(&other.x);
+            xsimd::batch<T> result = a * b;
+            Vector resultVector;
+            result.store_aligned(&resultVector.x);
+            return resultVector;
+        }
+
+        Vector operator*(const Vector& other) const noexcept
+        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        {
+            xsimd::batch<T> a1, a2, b1, b2;
+            a1 = xsimd::batch<T>::load_aligned(&x);
+            a2 = xsimd::batch<T>::load_unaligned(&z);
+            b1 = xsimd::batch<T>::load_aligned(&other.x);
+            b2 = xsimd::batch<T>::load_unaligned(&other.z);
+            xsimd::batch<T> result1 = a1 * b1;
+            xsimd::batch<T> result2 = a2 * b2;
+            Vector resultVector;
+            result1.store_aligned(&resultVector.x);
+            result2.store_unaligned(&resultVector.z);
+            return resultVector;
+        }
+
+
+        Vector operator/(const Vector& other) const noexcept 
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        { 
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(&x);
+            b = xsimd::batch<T>::load_aligned(&other.x);
+            xsimd::batch<T> result = a / b;
+            Vector resultVector;
+            result.store_aligned(&resultVector.x);
+            return resultVector;
+        }
+        Vector operator/(const Vector& other) const noexcept 
+        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        {
+            xsimd::batch<T> a1, a2, b1, b2;
+            a1 = xsimd::batch<T>::load_aligned(&x);
+            a2 = xsimd::batch<T>::load_unaligned(&z);
+            b1 = xsimd::batch<T>::load_aligned(&other.x);
+            b2 = xsimd::batch<T>::load_unaligned(&other.z);
+            xsimd::batch<T> result1 = a1 / b1;
+            xsimd::batch<T> result2 = a2 / b2;
+            Vector resultVector;
+            result1.store_aligned(&resultVector.x);
+            result2.store_unaligned(&resultVector.z);
+            return resultVector;
+        }
+
+        [[nodiscard]] T Dot(const Vector& other) 
+        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        { 
+            xsimd::batch<T> a, b;
+            a = xsimd::batch<T>::load_aligned(&x);
+            b = xsimd::batch<T>::load_aligned(&other.x);
+            xsimd::batch<T> result = a * b;
+            return xsimd::reduce_add(result);
+        }
+
+        [[nodiscard]] T Dot(const Vector& other)
+        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        {
+            xsimd::batch<T> a1, a2, b1, b2;
+            a1 = xsimd::batch<T>::load_aligned(&x);
+            a2 = xsimd::batch<T>::load_unaligned(&z);
+            b1 = xsimd::batch<T>::load_aligned(&other.x);
+            b2 = xsimd::batch<T>::load_unaligned(&other.z);
+            xsimd::batch<T> result1 = a1 / b1;
+            xsimd::batch<T> result2 = a2 / b2;
+            return xsimd::reduce_add(result1) + xsimd::reduce_add(result2);
+        }
+
+#else
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y, z * other.z, w * other.w); }
         Vector operator/(const Vector& other) const noexcept { return Vector(x / other.x, y / other.y, z / other.z, w / other.w); }
+        [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y + z * other.z + w * other.w; }
+
+#endif
+
+        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y, z + other.z, w + other.w); }
+        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z, w - other.w); }
         [[nodiscard]] Vector Cross3D(const Vector& other) const noexcept
         {
             return Vector(
@@ -328,7 +413,6 @@ namespace Pulsarion::Math
                 0                       // w component
             );
         }
-        [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y + z * other.z + w * other.w; }
         [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z + w * w; }
         [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }

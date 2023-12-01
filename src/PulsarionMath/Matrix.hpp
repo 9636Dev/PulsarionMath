@@ -90,7 +90,7 @@ namespace Pulsarion::Math
                 for (int col = 0; col < 4; ++col)
                 {
                     xsimd::batch<float> batch_result = this_batch_rows[row] * other_batch_cols[col];
-                    result.data[row + 4 * col] = reduce_add(batch_result);
+                    result.data[row + 4 * col] = xsimd::reduce_add(batch_result);
                 }
             }
 
@@ -123,7 +123,7 @@ namespace Pulsarion::Math
                 {
                     xsimd::batch<double> batch_result1 = this_batch_rows[row * 2] * other_batch_cols[col * 2];
                     xsimd::batch<double> batch_result2 = this_batch_rows[row * 2 + 1] * other_batch_cols[col * 2 + 1];
-                    result.data[row + 4 * col] = reduce_add(batch_result1) + reduce_add(batch_result2);
+                    result.data[row + 4 * col] = xsimd::reduce_add(batch_result1) + xsimd::reduce_add(batch_result2);
                 }
             }
 
@@ -159,7 +159,7 @@ namespace Pulsarion::Math
             {
                 batch_col = xsimd::batch<T>::load_unaligned(columns[i].data.data());
                 xsimd::batch<float> batch_result = batch_col * batch_other;
-                result.data[i] = reduce_add(batch_result);
+                result.data[i] = xsimd::reduce_add(batch_result);
             }
 
             return result;
