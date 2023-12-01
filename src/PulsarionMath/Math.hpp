@@ -4,8 +4,10 @@
 
 #include "Vector.hpp"
 #include "Matrix.hpp"
-
-#include <cstdint>
+#include "MatrixTransform.hpp"
+#include "Constants.hpp"
+#include "Conversion.hpp"
+#include "Quaternion.hpp"
 
 namespace Pulsarion
 {

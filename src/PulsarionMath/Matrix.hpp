@@ -3,6 +3,8 @@
 #include "Core.hpp"
 #include "Vector.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 namespace Pulsarion::Math
 {
     template <float_type T, size_t C, size_t R>
@@ -130,7 +132,24 @@ namespace Pulsarion::Math
 
             return result;
         }
-#endif
+
+
+        Matrix operator*(const Matrix& other) const noexcept
+        requires std::same_as<T, float_extp> 
+        {
+            Matrix result;
+            for (int row = 0; row < 4; ++row) {
+                for (int col = 0; col < 4; ++col) {
+                    result[col][row] =
+                        data[row] * other.data[col * 4] +
+                        data[4 + row] * other.data[col * 4 + 1] +
+                        data[8 + row] * other.data[col * 4 + 2] +
+                        data[12 + row] * other.data[col * 4 + 3];
+                }
+            }
+            return result;
+        }
+#else   
 
         Matrix operator*(const Matrix& other) const noexcept
         {
@@ -146,6 +165,7 @@ namespace Pulsarion::Math
             }
             return result;
         }
+#endif
 
 #ifdef PULSARION_MATH_USE_SIMD
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
@@ -164,8 +184,18 @@ namespace Pulsarion::Math
 
             return result;
         }
-#endif
 
+        Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
+        requires std::same_as<T, float_extp> 
+        {
+            return {
+                data[0] * other.x + data[1] * other.y + data[2] * other.z + data[3] * other.w,
+                data[4] * other.x + data[5] * other.y + data[6] * other.z + data[7] * other.w,
+                data[8] * other.x + data[9] * other.y + data[10] * other.z + data[11] * other.w,
+                data[12] * other.x + data[13] * other.y + data[14] * other.z + data[15] * other.w
+            };
+        }
+#else
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
         {
             return {
@@ -175,6 +205,7 @@ namespace Pulsarion::Math
                 data[12] * other.x + data[13] * other.y + data[14] * other.z + data[15] * other.w
             };
         }
+#endif
 
         const Vector<T, 4>& operator[](size_t index) const noexcept
         {
@@ -210,4 +241,11 @@ namespace Pulsarion::Math
             std::array<T, 16> data;
         };
     };
+
+
+    // Explicit template instantiations
+    template class Matrix<float_normalp, 4, 4>;
+    template class Matrix<float_highp, 4, 4>;
+    template class Matrix<float_extp, 4, 4>;
 }
+

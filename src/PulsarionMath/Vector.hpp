@@ -317,8 +317,8 @@ namespace Pulsarion::Math
 
 #ifdef PULSARION_MATH_USE_SIMD
         Vector operator*(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        { 
+        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
+        {
             xsimd::batch<T> a, b;
             a = xsimd::batch<T>::load_aligned(&x);
             b = xsimd::batch<T>::load_aligned(&other.x);
@@ -346,8 +346,8 @@ namespace Pulsarion::Math
 
 
         Vector operator/(const Vector& other) const noexcept 
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        { 
+        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
+        {
             xsimd::batch<T> a, b;
             a = xsimd::batch<T>::load_aligned(&x);
             b = xsimd::batch<T>::load_aligned(&other.x);
@@ -373,8 +373,8 @@ namespace Pulsarion::Math
         }
 
         [[nodiscard]] T Dot(const Vector& other) 
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        { 
+        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
+        {
             xsimd::batch<T> a, b;
             a = xsimd::batch<T>::load_aligned(&x);
             b = xsimd::batch<T>::load_aligned(&other.x);
