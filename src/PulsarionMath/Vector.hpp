@@ -3,8 +3,8 @@
 #include "Core.hpp"
 
 #include <ostream>
-
-#include "PulsarionCore/Assert.hpp"
+#include <array>
+#include <sstream>
 
 namespace Pulsarion::Math
 {
@@ -148,7 +148,7 @@ namespace Pulsarion::Math
 
         T operator[](size_t index) const noexcept
         {
-            PULSARION_ASSERT(index < 2, "Index out of bounds");
+            // std::array check bounds automatically in debug mode
             return data[index];
         }
 
@@ -158,6 +158,33 @@ namespace Pulsarion::Math
             ss << "Vector2(" << data[0] << ", " << data[1] << ")";
             return ss.str();
         }
+
+        
+        Vector operator+=(const Vector& other) noexcept
+        {
+            *this = *this + other;
+            return *this;
+        }
+        Vector operator-=(const Vector& other) noexcept
+        {
+			*this = *this - other;
+			return *this;
+        }
+        Vector operator*=(const Vector& other) noexcept
+        {
+			*this = *this * other;
+			return *this;
+        }
+        Vector operator/=(const Vector& other) noexcept
+        {
+            *this = *this / other;
+            return *this;
+        }
+
+        bool operator==(const Vector& other) const noexcept
+		{
+			return x == other.x && y == other.y;
+		}
 
         union PULSARION_MATH_ALIGN
         {
@@ -244,7 +271,6 @@ namespace Pulsarion::Math
 
         T operator[](size_t index) const noexcept
         {
-            PULSARION_ASSERT(index < 3, "Index out of bounds");
             return data[index];
         }
 
@@ -263,6 +289,32 @@ namespace Pulsarion::Math
             ss << ")";
             return ss.str();
         }
+
+        Vector operator+=(const Vector& other) noexcept
+        {
+            *this = *this + other;
+            return *this;
+        }
+        Vector operator-=(const Vector& other) noexcept
+        {
+            *this = *this - other;
+            return *this;
+        }
+        Vector operator*=(const Vector& other) noexcept
+        {
+            *this = *this * other;
+            return *this;
+        }
+        Vector operator/=(const Vector& other) noexcept
+        {
+            *this = *this / other;
+            return *this;
+        }
+
+        bool operator==(const Vector& other) const noexcept
+		{
+			return x == other.x && y == other.y && z == other.z;
+		}
 
         union PULSARION_MATH_ALIGN
         {
@@ -329,7 +381,8 @@ namespace Pulsarion::Math
         }
 
         Vector operator*(const Vector& other) const noexcept
-        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        // ReSharper disable once CppRedundantBooleanExpressionArgument
+            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
         {
             xsimd::batch<T> a1, a2, b1, b2;
             a1 = xsimd::batch<T>::load_aligned(&x);
@@ -357,7 +410,8 @@ namespace Pulsarion::Math
             return resultVector;
         }
         Vector operator/(const Vector& other) const noexcept 
-        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        // ReSharper disable once CppRedundantBooleanExpressionArgument
+            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
         {
             xsimd::batch<T> a1, a2, b1, b2;
             a1 = xsimd::batch<T>::load_aligned(&x);
@@ -383,7 +437,8 @@ namespace Pulsarion::Math
         }
 
         [[nodiscard]] T Dot(const Vector& other)
-        requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
+        // ReSharper disable once CppRedundantBooleanExpressionArgument
+            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
         {
             xsimd::batch<T> a1, a2, b1, b2;
             a1 = xsimd::batch<T>::load_aligned(&x);
@@ -448,13 +503,11 @@ namespace Pulsarion::Math
 
         const T& operator[](size_t index) const noexcept
         {
-            PULSARION_ASSERT(index < 4, "Index out of bounds");
             return data[index];
         }
 
         T& operator[](size_t index) noexcept
         {
-            PULSARION_ASSERT(index < 4, "Index out of bounds");
             return data[index];
         }
 
@@ -472,6 +525,32 @@ namespace Pulsarion::Math
             }
             ss << ")";
             return ss.str();
+        }
+
+        Vector operator+=(const Vector& other) noexcept
+        {
+            *this = *this + other;
+            return *this;
+        }
+        Vector operator-=(const Vector& other) noexcept
+        {
+            *this = *this - other;
+            return *this;
+        }
+        Vector operator*=(const Vector& other) noexcept
+        {
+            *this = *this * other;
+            return *this;
+        }
+        Vector operator/=(const Vector& other) noexcept
+        {
+            *this = *this / other;
+            return *this;
+        }
+
+        bool operator==(const Vector& other) const noexcept
+        {
+            return x == other.x && y == other.y && z == other.z && w == other.w;
         }
 
         union PULSARION_MATH_ALIGN

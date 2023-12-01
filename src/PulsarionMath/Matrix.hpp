@@ -11,7 +11,7 @@ namespace Pulsarion::Math
     class Matrix;
 
     template<float_type T, size_t N>
-    Matrix<T, N, N> IdentityMatrix()
+    Matrix<T, N, N> IdentityMatrix() noexcept
     {
         Matrix<T, N, N> result;
         for (size_t i = 0; i < N; i++)
@@ -30,6 +30,35 @@ namespace Pulsarion::Math
             Identity(); // Start with identity matrix
         }
         Matrix(std::array<T, 16> data) : data(data) {}
+        
+        Matrix(T m00, T m01, T m02, T m03,
+			T m10, T m11, T m12, T m13,
+			T m20, T m21, T m22, T m23,
+			T m30, T m31, T m32, T m33) noexcept
+			: data{ m00, m10, m20, m30,
+					m01, m11, m21, m31,
+					m02, m12, m22, m32,
+					m03, m13, m23, m33 } // Convert from row-major to column-major
+		{
+		}
+
+        Matrix Transposed() const noexcept
+		{
+			Matrix result;
+			for (size_t row = 0; row < 4; row++)
+			{
+				for (size_t col = 0; col < 4; col++)
+				{
+					result.data[row + 4 * col] = data[col + 4 * row];
+				}
+			}
+			return result;
+		}
+
+        void Transpose() noexcept
+        {
+            *this = Transposed(); // In-place transpose is complicated, so just do it this way
+        }
 
         void Identity() noexcept
         {
@@ -167,6 +196,19 @@ namespace Pulsarion::Math
         }
 #endif
 
+        // Scalar multiplication
+        template<number_type U>
+        Matrix operator*(U scalar) const noexcept
+		{
+            T s = static_cast<T>(scalar);
+			Matrix result;
+			for (size_t i = 0; i < 16; i++)
+			{
+				result.data[i] = data[i] * s;
+			}
+			return result;
+		}
+
 #ifdef PULSARION_MATH_USE_SIMD
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
         requires std::same_as<T, float_normalp> || (std::same_as<PULSARION_MATH_SIMD, xsimd::avx> && std::same_as<T, float_highp>)
@@ -209,13 +251,11 @@ namespace Pulsarion::Math
 
         const Vector<T, 4>& operator[](size_t index) const noexcept
         {
-            PULSARION_ASSERT(index < 4, "Index out of bounds!");
             return columns[index];
         }
 
         Vector<T, 4>& operator[](size_t index) noexcept
         {
-            PULSARION_ASSERT(index < 4, "Index out of bounds!");
             return columns[index];
         }
 
@@ -235,9 +275,24 @@ namespace Pulsarion::Math
             return ss.str();
         }
 
+        bool operator==(const Matrix& other) const noexcept
+		{
+			for (size_t i = 0; i < 16; i++)
+			{
+				if (data[i] != other.data[i])
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
         union
         {
             Vector<T, 4> columns[4];
+            /// <summary>
+            /// Stored in column-major order, so the first 4 elements are the first column, the next 4 the second column, etc. [2] would be [0][2]
+            /// </summary>
             std::array<T, 16> data;
         };
     };
