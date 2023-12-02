@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <compare>
+// We need trig functions
+#include <cmath>
 
 #if (defined(__SSE__) || defined(__AVX__)) && !defined(PULSARION_MATH_DISABLE_SIMD)
 #include <xsimd/xsimd.hpp>
@@ -60,5 +62,39 @@ namespace Pulsarion::Math
         return y;
     }
 
+    // Define trigonometric functions using the standard library, so in the future we can use our own implementation
+    template<float_type T>
+    T Sin(T angle)
+    {
+        return std::sin(angle);
+    }
 
+    template<float_type T>
+    T Cos(T angle)
+    {
+		return std::cos(angle);
+	}
+
+    template<float_type T>
+    T Tan(T angle)
+    {
+        return std::tan(angle);
+    }
+
+    template<float_type T>
+    T Sqrt(T number)
+    {
+        if constexpr (std::same_as<T, float_normalp>)
+		{
+			return std::sqrtf(number);
+		}
+		else if constexpr (std::same_as<T, float_highp>)
+		{
+			return std::sqrt(number);
+		}
+		else if constexpr (std::same_as<T, float_extp>)
+		{
+			return std::sqrtl(number);
+		}
+    }
 }

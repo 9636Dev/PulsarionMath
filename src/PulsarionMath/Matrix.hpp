@@ -217,8 +217,7 @@ namespace Pulsarion::Math
 
             xsimd::batch<T> batch_other, batch_col;
             batch_other = xsimd::batch<T>::load_aligned(other.data.data());
-            for (int i = 0;i < 4; ++i)
-            {
+            for (int i = 0; i < 4; ++i) {
                 batch_col = xsimd::batch<T>::load_unaligned(columns[i].data.data());
                 xsimd::batch<float> batch_result = batch_col * batch_other;
                 result.data[i] = xsimd::reduce_add(batch_result);
@@ -231,21 +230,21 @@ namespace Pulsarion::Math
         requires std::same_as<T, float_extp> 
         {
             return {
-                data[0] * other.x + data[1] * other.y + data[2] * other.z + data[3] * other.w,
-                data[4] * other.x + data[5] * other.y + data[6] * other.z + data[7] * other.w,
-                data[8] * other.x + data[9] * other.y + data[10] * other.z + data[11] * other.w,
-                data[12] * other.x + data[13] * other.y + data[14] * other.z + data[15] * other.w
+                data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w,
+                data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w,
+                data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w,
+                data[3] * other.x + data[7] * other.y + data[11] * other.z + data[15] * other.w
             };
         }
 #else
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
         {
             return {
-                data[0] * other.x + data[1] * other.y + data[2] * other.z + data[3] * other.w,
-                data[4] * other.x + data[5] * other.y + data[6] * other.z + data[7] * other.w,
-                data[8] * other.x + data[9] * other.y + data[10] * other.z + data[11] * other.w,
-                data[12] * other.x + data[13] * other.y + data[14] * other.z + data[15] * other.w
-            };
+                data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w,
+                data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w,
+                data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w,
+                data[3] * other.x + data[7] * other.y + data[11] * other.z + data[15] * other.w
+                };
         }
 #endif
 

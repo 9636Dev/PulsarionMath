@@ -8,6 +8,7 @@
 #include "Constants.hpp"
 #include "Conversion.hpp"
 #include "Quaternion.hpp"
+#include "EulerAngle.hpp"
 
 namespace Pulsarion
 {

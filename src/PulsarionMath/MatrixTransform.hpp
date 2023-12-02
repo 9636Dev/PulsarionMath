@@ -44,11 +44,11 @@ namespace Pulsarion::Math
     Matrix<T, 4, 4> MatrixRotateX(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
     {
         auto result = matrix;
-        const T cos = std::cos(angle);
-        const T sin = std::sin(angle);
+        const T cos = Cos(angle); // T is automatically deduced
+        const T sin = Sin(angle);
         result[1][1] = cos;
-        result[1][2] = -sin;
-        result[2][1] = sin;
+        result[1][2] = sin;
+        result[2][1] = -sin;
         result[2][2] = cos;
         return result;
     }
@@ -57,11 +57,11 @@ namespace Pulsarion::Math
     Matrix<T, 4, 4> MatrixRotateY(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
     {
         auto result = matrix;
-        const T cos = std::cos(angle);
-        const T sin = std::sin(angle);
+        const T cos = Cos(angle);
+        const T sin = Sin(angle);
         result[0][0] = cos;
-        result[0][2] = sin;
-        result[2][0] = -sin;
+        result[0][2] = -sin;
+        result[2][0] = sin;
         result[2][2] = cos;
         return result;
     }
@@ -70,11 +70,11 @@ namespace Pulsarion::Math
     Matrix<T, 4, 4> MatrixRotateZ(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
     {
         auto result = matrix;
-        const T cos = std::cos(angle);
-        const T sin = std::sin(angle);
+        const T cos = Cos(angle);
+        const T sin = Sin(angle);
         result[0][0] = cos;
-        result[0][1] = -sin;
-        result[1][0] = sin;
+        result[0][1] = sin;
+        result[1][0] = -sin;
         result[1][1] = cos;
         return result;
     }
@@ -83,8 +83,8 @@ namespace Pulsarion::Math
     Matrix<T, 4, 4> MatrixRotate(const T& angle, const Vector<T, 3>& axis, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
     {
         auto result = matrix;
-        const T cos = std::cos(angle);
-        const T sin = std::sin(angle);
+        const T cos = Cos(angle);
+        const T sin = Sin(angle);
         const T oneMinusCos = 1 - cos;
         const T x = axis.x;
         const T y = axis.y;

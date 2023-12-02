@@ -126,7 +126,7 @@ namespace Pulsarion::Math
         Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y); }
 
         [[nodiscard]] float Cross(const Vector& other) const noexcept { return x * other.y - y * other.x; }
-        [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
+        [[nodiscard]] T Magnitude() const noexcept { return Sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y; }
         [[nodiscard]] T InverseMagnitudeLow() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
@@ -248,7 +248,7 @@ namespace Pulsarion::Math
         {
             return x * other.x + y * other.y + z * other.z;
         }
-        [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
+        [[nodiscard]] T Magnitude() const noexcept { return Sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z; }
         [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
@@ -323,14 +323,14 @@ namespace Pulsarion::Math
         };
     };
 
-    // Vector with 4 components
+    // By default, w is set to 1
     template<float_type T>
     class Vector<T, 4>
     {
     public:
-        Vector(T x = 0, T y = 0, T z = 0, T w = 0) : x(x), y(y), z(z), w(w) {}
-        Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0), w(0) {}
-        Vector(const Vector<T, 3>& other) noexcept : x(other.x), y(other.y), z(other.z), w(0) {}
+        Vector(T x = 0, T y = 0, T z = 0, T w = 1) : x(x), y(y), z(z), w(w) {}
+        Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0), w(1) {}
+        Vector(const Vector<T, 3>& other) noexcept : x(other.x), y(other.y), z(other.z), w(1) {}
         Vector(const Vector& other) noexcept = default;
         Vector(Vector&& other) noexcept = default;
         Vector& operator=(const Vector& other) noexcept = default;
@@ -468,7 +468,7 @@ namespace Pulsarion::Math
                 0                       // w component
             );
         }
-        [[nodiscard]] T Magnitude() const noexcept { return std::sqrt(MagnitudeSquared()); }
+        [[nodiscard]] T Magnitude() const noexcept { return Sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z + w * w; }
         [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
         [[nodiscard]] Vector Normalized() const noexcept
@@ -492,7 +492,7 @@ namespace Pulsarion::Math
         // Normalize 3D
         Vector& Normalize3D() noexcept
         {
-            const T magnitude = std::sqrt(x * x + y * y + z * z);
+            const T magnitude = Sqrt(x * x + y * y + z * z);
             if (magnitude == 0)
                 return *this; // Avoid division by zero
             x /= magnitude;

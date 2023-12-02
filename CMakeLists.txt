@@ -18,6 +18,7 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
             src/PulsarionMath/Quaternion.hpp
             src/PulsarionMath/Constants.hpp
             src/PulsarionMath/Conversion.hpp
+            src/PulsarionMath/EulerAngle.hpp
     )
 
     target_link_libraries(PulsarionMath INTERFACE PulsarionCore)
