@@ -30,9 +30,9 @@ namespace Pulsarion::Math
     }
 
     template<float_type T>
-    Matrix<T, 4, 4> MatrixScale(const Vector<T, 3>& scale, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
+    Matrix<T, 4, 4> MatrixScale(const Vector<T, 3>& scale)
     {
-        auto result = matrix;
+        auto result = Matrix<T, 4, 4>();
         result[0][0] *= scale.x;
         result[1][1] *= scale.y;
         result[2][2] *= scale.z;
@@ -41,9 +41,15 @@ namespace Pulsarion::Math
     }
 
     template<float_type T>
-    Matrix<T, 4, 4> MatrixRotateX(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
+    Matrix<T, 4, 4> MatrixScale(const Vector<T, 3>& scale, const Matrix<T, 4, 4>& matrix)
     {
-        auto result = matrix;
+		return matrix * MatrixScale(scale);
+	}
+
+    template<float_type T>
+    Matrix<T, 4, 4> MatrixRotateX(const T& angle)
+    {
+        auto result = Matrix<T, 4, 4>();
         const T cos = Cos(angle); // T is automatically deduced
         const T sin = Sin(angle);
         result[1][1] = cos;
@@ -54,9 +60,15 @@ namespace Pulsarion::Math
     }
 
     template<float_type T>
-    Matrix<T, 4, 4> MatrixRotateY(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
+    Matrix<T, 4, 4> MatrixRotateX(const T& angle, const Matrix<T, 4, 4>& matrix)
     {
-        auto result = matrix;
+        return matrix * MatrixRotateX(angle);
+    }
+
+    template<float_type T>
+    Matrix<T, 4, 4> MatrixRotateY(const T& angle)
+    {
+        auto result = Matrix<T, 4, 4>();
         const T cos = Cos(angle);
         const T sin = Sin(angle);
         result[0][0] = cos;
@@ -67,9 +79,15 @@ namespace Pulsarion::Math
     }
 
     template<float_type T>
-    Matrix<T, 4, 4> MatrixRotateZ(const T& angle, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
+    Matrix<T, 4, 4> MatrixRotateY(const T& angle, const Matrix<T, 4, 4>& matrix)
     {
-        auto result = matrix;
+        return matrix * MatrixRotateY(angle);
+    }
+
+    template<float_type T>
+    Matrix<T, 4, 4> MatrixRotateZ(const T& angle)
+    {
+        auto result = Matrix<T, 4, 4>();
         const T cos = Cos(angle);
         const T sin = Sin(angle);
         result[0][0] = cos;
@@ -80,9 +98,15 @@ namespace Pulsarion::Math
     }
 
     template<float_type T>
-    Matrix<T, 4, 4> MatrixRotate(const T& angle, const Vector<T, 3>& axis, const Matrix<T, 4, 4>& matrix = IdentityMatrix<T, 4>())
+    Matrix<T, 4, 4> MatrixRotateZ(const T& angle, const Matrix<T, 4, 4>& matrix)
     {
-        auto result = matrix;
+        return matrix * MatrixRotateZ(angle);
+    }
+
+    template<float_type T>
+    Matrix<T, 4, 4> MatrixRotate(const T& angle, const Vector<T, 3>& axis)
+    {
+        auto result = Matrix<T, 4, 4>();
         const T cos = Cos(angle);
         const T sin = Sin(angle);
         const T oneMinusCos = 1 - cos;
@@ -90,14 +114,20 @@ namespace Pulsarion::Math
         const T y = axis.y;
         const T z = axis.z;
         result[0][0] = cos + x * x * oneMinusCos;
-        result[0][1] = x * y * oneMinusCos - z * sin;
-        result[0][2] = x * z * oneMinusCos + y * sin;
-        result[1][0] = y * x * oneMinusCos + z * sin;
+        result[0][1] = x * y * oneMinusCos + z * sin;
+        result[0][2] = x * z * oneMinusCos - y * sin;
+        result[1][0] = y * x * oneMinusCos - z * sin;
         result[1][1] = cos + y * y * oneMinusCos;
-        result[1][2] = y * z * oneMinusCos - x * sin;
-        result[2][0] = z * x * oneMinusCos - y * sin;
-        result[2][1] = z * y * oneMinusCos + x * sin;
+        result[1][2] = y * z * oneMinusCos + x * sin;
+        result[2][0] = z * x * oneMinusCos + y * sin;
+        result[2][1] = z * y * oneMinusCos - x * sin;
         result[2][2] = cos + z * z * oneMinusCos;
         return result;
     }
+
+    template<float_type T>
+    Matrix<T, 4, 4> MatrixRotate(const T& angle, const Vector<T, 3>& axis, const Matrix<T, 4, 4>& matrix)
+    {
+		return matrix * MatrixRotate(angle, axis);
+	}
 }
