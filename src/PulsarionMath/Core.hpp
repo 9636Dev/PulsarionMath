@@ -5,7 +5,8 @@
 // We need trig functions
 #include <cmath>
 
-#if (defined(__SSE__) || defined(__AVX__)) && !defined(PULSARION_MATH_DISABLE_SIMD)
+// Disable SIMD for Apple Clang, it creates weird behaviours that xsimd can't handle
+#if (defined(__SSE__) || defined(__AVX__)) && !defined(PULSARION_MATH_DISABLE_SIMD) && !defined(__APPLE__)
 #include <xsimd/xsimd.hpp>
 #define PULSARION_MATH_USE_SIMD
 #ifdef __SSE__
