@@ -12,7 +12,7 @@ namespace Pulsarion::Math
 	template<float_type T>
 	EulerAngle<T> EulerAngleConvertToRadians(const EulerAngle<T>& angle)
 	{
-		return EulerAngle(
+		return EulerAngle<T>(
 			DegreesToRadians(angle.x),
 			DegreesToRadians(angle.y),
 			DegreesToRadians(angle.z)
