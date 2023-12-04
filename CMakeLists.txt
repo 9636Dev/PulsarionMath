@@ -7,7 +7,6 @@ add_subdirectory(vendor/xsimd)
 
 if (DEFINED PULSARION_MATH_STANDALONE)
     MESSAGE(STATUS "PulsarionMath: Building standalone")
-    set(PULSARION_LIBRARY_TYPE STATIC)
 
     # Get PulsarionCore using FetchContent
     include(FetchContent)
@@ -40,7 +39,9 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
     target_include_directories(PulsarionMath INTERFACE src)
     return()
 endif()
-add_library(PulsarionMath ${PULSARION_LIBRARY_TYPE} 
+
+# Only ever build as static library, since there are no exports, and only one arbituary source file
+add_library(PulsarionMath STATIC 
         src/PulsarionMath/Core.hpp
         src/PulsarionMath/Vector.hpp
         src/PulsarionMath/MatrixTransform.hpp
@@ -52,6 +53,7 @@ add_library(PulsarionMath ${PULSARION_LIBRARY_TYPE}
         src/PulsarionMath/Conversion.hpp
 )
 
+add_dependencies(PulsarionMath PulsarionCore)
 target_link_libraries(PulsarionMath PUBLIC PulsarionCore)
 target_link_libraries(PulsarionMath PUBLIC xsimd)
 
