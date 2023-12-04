@@ -7,6 +7,10 @@ add_subdirectory(vendor/xsimd)
 
 # There is issue with MSVC and C++20, where it uses the default C++14 standard when building INTERFACE libraries
 
+if (NOT DEFINED PULSARION_LIBRARY_TYPE)
+    message(FATAL_ERROR "PulsarionMath: PULSARION_LIBRARY_TYPE is not defined, include PulsarionCore first!")
+endif()
+
 if (DEFINED PULSARION_MATH_HEADER_ONLY)
     MESSAGE(STATUS "PulsarionMath: Using header only mode")
     add_library(PulsarionMath INTERFACE
@@ -27,7 +31,7 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
     target_include_directories(PulsarionMath INTERFACE src)
     return()
 endif()
-add_library(PulsarionMath STATIC 
+add_library(PulsarionMath ${PULSARION_LIBRARY_TYPE} 
         src/PulsarionMath/Core.hpp
         src/PulsarionMath/Vector.hpp
         src/PulsarionMath/MatrixTransform.hpp
