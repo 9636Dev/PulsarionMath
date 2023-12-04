@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.27)
-project(PulsarionMath)
+project(PulsarionMath VERSION 0.0.1 LANGUAGES CXX DESCRIPTION "A math library for games and graphics")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(vendor/xsimd)
+
+if (DEFINED PULSARION_MATH_STANDALONE)
+    MESSAGE(STATUS "PulsarionMath: Building standalone")
+    set(PULSARION_LIBRARY_TYPE STATIC)
+
+    # Get PulsarionCore using FetchContent
+    include(FetchContent)
+    message(FATAL_ERROR "PulsarionMath: Standalone build is not supported yet!")
+endif()
 
 # There is issue with MSVC and C++20, where it uses the default C++14 standard when building INTERFACE libraries
 
