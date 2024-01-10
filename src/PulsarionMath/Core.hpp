@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <compare>
 // We need trig functions
 #include <cmath>
+#include <concepts>
 
 // Disable SIMD for Apple Clang, it creates weird behaviours that xsimd can't handle
 #if (defined(__SSE__) || defined(__AVX__)) && !defined(PULSARION_MATH_DISABLE_SIMD) && !defined(__APPLE__)
