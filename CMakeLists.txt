@@ -41,7 +41,7 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
 endif()
 
 # Only ever build as static library, since there are no exports, and only one arbituary source file
-add_library(PulsarionMath STATIC 
+add_library(PulsarionMath STATIC
         src/PulsarionMath/Core.hpp
         src/PulsarionMath/Vector.hpp
         src/PulsarionMath/MatrixTransform.hpp
@@ -58,3 +58,7 @@ target_link_libraries(PulsarionMath PUBLIC PulsarionCore)
 target_link_libraries(PulsarionMath PUBLIC xsimd)
 
 target_include_directories(PulsarionMath PUBLIC src)
+
+if (NOT DEFINED PULSARION_MATH_NO_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
