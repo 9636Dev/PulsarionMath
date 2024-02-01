@@ -9,7 +9,7 @@ namespace Pulsarion::Math
     class Quaternion
     {
     public:
-        Quaternion(T w = 1, T x = 0, T y = 0, T z = 0) noexcept : w(w), x(x), y(y), z(z) {}; // Identity
+        explicit Quaternion(T w = 1, T x = 0, T y = 0, T z = 0) noexcept : x(x), y(y), z(z), w(w) {}; // Identity
         Quaternion(const Quaternion& other) noexcept : w(other.w), x(other.x), y(other.y), z(other.z) {};
         Quaternion(Quaternion&& other) noexcept : w(std::move(other.w)), x(std::move(other.x)), y(std::move(other.y)), z(std::move(other.z)) {};
         ~Quaternion() noexcept = default;

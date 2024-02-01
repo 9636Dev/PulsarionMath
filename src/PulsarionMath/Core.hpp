@@ -49,12 +49,13 @@ namespace Pulsarion::Math
     // Fast inverse square root, from Quake III Arena
     inline float FastInverseSqrt(float number) {
         constexpr float threehalfs = 1.5F;
+        constexpr std::int32_t correctionTerm = 0x5f3759df;
 
-        float x2 = number * 0.5F;
+        const float x2 = number * 0.5F;
         float y  = number;
 
-        int32_t i  = *reinterpret_cast<int32_t *>(&y);
-        i  = 0x5f3759df - (i >> 1);
+        std::int32_t i  = *reinterpret_cast<std::int32_t*>(&y);
+        i  = correctionTerm - (i >> 1);
         y  = *reinterpret_cast<float *>(&i);
 
         y  = y * (threehalfs - (x2 * y * y));
@@ -86,16 +87,15 @@ namespace Pulsarion::Math
     T Sqrt(T number)
     {
         if constexpr (std::same_as<T, float_normalp>)
-		{
 			return std::sqrtf(number);
-		}
-		else if constexpr (std::same_as<T, float_highp>)
-		{
+
+		if constexpr (std::same_as<T, float_highp>)
 			return std::sqrt(number);
-		}
-		else if constexpr (std::same_as<T, float_extp>)
-		{
+
+        if constexpr (std::same_as<T, float_extp>)
 			return std::sqrtl(number);
-		}
+
+        // If we reach this point, we have an invalid float type
+        return 0;
     }
 }

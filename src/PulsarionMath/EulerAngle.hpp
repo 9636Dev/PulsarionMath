@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Conversion.hpp"
-#include "Vector.hpp"
 #include "Quaternion.hpp"
+#include "Vector.hpp"
 
 namespace Pulsarion::Math
 {
 	template<float_type T>
 	using EulerAngle = Vector<T, 3>;
 
-	template<float_type T>
+    template<float_type T>
 	EulerAngle<T> EulerAngleConvertToRadians(const EulerAngle<T>& angle)
 	{
 		return EulerAngle<T>(

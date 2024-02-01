@@ -29,7 +29,7 @@ namespace Pulsarion::Math
         {
             Identity(); // Start with identity matrix
         }
-        Matrix(std::array<T, 16> data) : data(data) {}
+        explicit Matrix(std::array<T, 16> data) : data(data) {}
         
         Matrix(T m00, T m01, T m02, T m03,
 			T m10, T m11, T m12, T m13,

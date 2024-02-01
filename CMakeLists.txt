@@ -31,6 +31,7 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
             src/PulsarionMath/Constants.hpp
             src/PulsarionMath/Conversion.hpp
             src/PulsarionMath/EulerAngle.hpp
+            src/PulsarionMath/Complex.hpp
     )
 
     target_link_libraries(PulsarionMath INTERFACE PulsarionCore)

@@ -113,15 +113,15 @@ namespace Pulsarion::Math
         const T x = axis.x;
         const T y = axis.y;
         const T z = axis.z;
-        result[0][0] = cos + x * x * oneMinusCos;
-        result[0][1] = x * y * oneMinusCos + z * sin;
-        result[0][2] = x * z * oneMinusCos - y * sin;
-        result[1][0] = y * x * oneMinusCos - z * sin;
-        result[1][1] = cos + y * y * oneMinusCos;
-        result[1][2] = y * z * oneMinusCos + x * sin;
-        result[2][0] = z * x * oneMinusCos + y * sin;
-        result[2][1] = z * y * oneMinusCos - x * sin;
-        result[2][2] = cos + z * z * oneMinusCos;
+        result[0][0] = cos  + x     * x             * oneMinusCos;
+        result[0][1] = x    * y     * oneMinusCos   + z * sin;
+        result[0][2] = x    * z     * oneMinusCos   - y * sin;
+        result[1][0] = y    * x     * oneMinusCos   - z * sin;
+        result[1][1] = cos  + y     * y             * oneMinusCos;
+        result[1][2] = y    * z     * oneMinusCos   + x * sin;
+        result[2][0] = z    * x     * oneMinusCos   + y * sin;
+        result[2][1] = z    * y     * oneMinusCos   - x * sin;
+        result[2][2] = cos  + z     * z             * oneMinusCos;
         return result;
     }
 

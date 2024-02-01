@@ -8,7 +8,7 @@ namespace Pulsarion::Math
     class Complex
     {
     public:
-        Complex(T a = 0, T b = 0) noexcept : a(a), b(b) {};
+        explicit Complex(T a = 0, T b = 0) noexcept : a(a), b(b) {};
         Complex(const Complex& other) noexcept : a(other.a), b(other.b) {};
         Complex(Complex&& other) noexcept : a(std::move(other.a)), b(std::move(other.b)) {};
         ~Complex() noexcept = default;

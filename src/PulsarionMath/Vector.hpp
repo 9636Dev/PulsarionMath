@@ -2,8 +2,8 @@
 
 #include "Core.hpp"
 
-#include <ostream>
 #include <array>
+#include <ostream>
 #include <sstream>
 
 namespace Pulsarion::Math
