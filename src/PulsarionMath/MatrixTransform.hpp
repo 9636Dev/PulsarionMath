@@ -36,7 +36,7 @@ namespace Pulsarion::Math
         result[0][0] *= scale.x;
         result[1][1] *= scale.y;
         result[2][2] *= scale.z;
-        
+
         return result;
     }
 

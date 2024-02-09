@@ -30,7 +30,7 @@ namespace Pulsarion::Math
             Identity(); // Start with identity matrix
         }
         explicit Matrix(std::array<T, 16> data) : data(data) {}
-        
+
         Matrix(T m00, T m01, T m02, T m03,
 			T m10, T m11, T m12, T m13,
 			T m20, T m21, T m22, T m23,
@@ -42,7 +42,7 @@ namespace Pulsarion::Math
 		{
 		}
 
-        Matrix Transposed() const noexcept
+        [[nodiscard]] Matrix Transposed() const noexcept
 		{
 			Matrix result;
 			for (size_t row = 0; row < 4; row++)
@@ -108,7 +108,7 @@ namespace Pulsarion::Math
             xsimd::batch<T> this_batch_rows[4];
             xsimd::batch<T> other_batch_cols[4];
 
-            for (int i = 0; i < 4; i++)
+            for (std::size_t i = 0; i < 4; i++)
             {
                 temp = { data[i], data[i + 4], data[i + 8], data[i + 12] };
                 this_batch_rows[i] = xsimd::batch<T>::load_aligned(temp.data());
@@ -120,7 +120,7 @@ namespace Pulsarion::Math
             {
                 for (int col = 0; col < 4; ++col)
                 {
-                    xsimd::batch<float> batch_result = this_batch_rows[row] * other_batch_cols[col];
+                    xsimd::batch<T> batch_result = this_batch_rows[row] * other_batch_cols[col];
                     result.data[row + 4 * col] = xsimd::reduce_add(batch_result);
                 }
             }
@@ -137,7 +137,7 @@ namespace Pulsarion::Math
             xsimd::batch<double> this_batch_rows[8];
             xsimd::batch<double> other_batch_cols[8];
 
-            for (int i = 0; i < 4; i++)
+            for (std::size_t i = 0; i < 4; i++)
             {
                 temp = { data[i], data[i + 4] };
                 this_batch_rows[i * 2] = xsimd::batch<T>::load_aligned(temp.data());
@@ -148,9 +148,9 @@ namespace Pulsarion::Math
             }
 
             Matrix result;
-            for (int row = 0; row < 4; ++row)
+            for (std::size_t row = 0; row < 4; ++row)
             {
-                for (int col = 0; col < 4; ++col)
+                for (std::size_t col = 0; col < 4; ++col)
                 {
                     xsimd::batch<double> batch_result1 = this_batch_rows[row * 2] * other_batch_cols[col * 2];
                     xsimd::batch<double> batch_result2 = this_batch_rows[row * 2 + 1] * other_batch_cols[col * 2 + 1];
@@ -164,7 +164,7 @@ namespace Pulsarion::Math
 
 
         Matrix operator*(const Matrix& other) const noexcept
-        requires std::same_as<T, float_extp> 
+        requires std::same_as<T, float_extp>
         {
             Matrix result;
             for (int row = 0; row < 4; ++row) {
@@ -178,7 +178,7 @@ namespace Pulsarion::Math
             }
             return result;
         }
-#else   
+#else
 
         Matrix operator*(const Matrix& other) const noexcept
         {
@@ -219,7 +219,7 @@ namespace Pulsarion::Math
             batch_other = xsimd::batch<T>::load_aligned(other.data.data());
             for (int i = 0; i < 4; ++i) {
                 batch_col = xsimd::batch<T>::load_unaligned(columns[i].data.data());
-                xsimd::batch<float> batch_result = batch_col * batch_other;
+                xsimd::batch<T> batch_result = batch_col * batch_other;
                 result.data[i] = xsimd::reduce_add(batch_result);
             }
 
@@ -227,9 +227,9 @@ namespace Pulsarion::Math
         }
 
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
-        requires std::same_as<T, float_extp> 
+        requires std::same_as<T, float_extp>
         {
-            return {
+            return Vector<T, 4> {
                 data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w,
                 data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w,
                 data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w,
@@ -239,7 +239,7 @@ namespace Pulsarion::Math
 #else
         Vector<T, 4> operator*(const Vector<T, 4>& other) const noexcept
         {
-            return {
+            return Vector<T, 4> {
                 data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w,
                 data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w,
                 data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w,

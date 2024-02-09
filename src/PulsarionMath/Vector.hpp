@@ -17,7 +17,7 @@ namespace Pulsarion::Math
     class Vector<T, 2>
     {
     public:
-        Vector(T x = 0, T y = 0) : x(x), y(y) {}
+        explicit Vector(T x = 0, T y = 0) : x(x), y(y) {}
         Vector(const Vector& other) noexcept = default;
         Vector(Vector&& other) noexcept = default;
         Vector& operator=(const Vector& other) noexcept = default;
@@ -159,7 +159,7 @@ namespace Pulsarion::Math
             return ss.str();
         }
 
-        
+
         Vector operator+=(const Vector& other) noexcept
         {
             *this = *this + other;
@@ -198,8 +198,8 @@ namespace Pulsarion::Math
     class Vector<T, 3>
     {
     public:
-        Vector(T x = 0, T y = 0, T z = 0) : x(x), y(y), z(z) {}
-        Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0) {}
+        explicit Vector(T x = 0, T y = 0, T z = 0) : x(x), y(y), z(z) {}
+        explicit Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0) {}
         Vector(const Vector& other) noexcept = default;
         Vector(Vector&& other) noexcept = default;
         Vector& operator=(const Vector& other) noexcept = default;
@@ -328,9 +328,9 @@ namespace Pulsarion::Math
     class Vector<T, 4>
     {
     public:
-        Vector(T x = 0, T y = 0, T z = 0, T w = 1) : x(x), y(y), z(z), w(w) {}
-        Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0), w(1) {}
-        Vector(const Vector<T, 3>& other) noexcept : x(other.x), y(other.y), z(other.z), w(1) {}
+        explicit Vector(T x = 0, T y = 0, T z = 0, T w = 1) : x(x), y(y), z(z), w(w) {}
+        explicit Vector(const Vector<T, 2>& other) noexcept : x(other.x), y(other.y), z(0), w(1) {}
+        explicit Vector(const Vector<T, 3>& other) noexcept : x(other.x), y(other.y), z(other.z), w(1) {}
         Vector(const Vector& other) noexcept = default;
         Vector(Vector&& other) noexcept = default;
         Vector& operator=(const Vector& other) noexcept = default;
@@ -398,7 +398,7 @@ namespace Pulsarion::Math
         }
 
 
-        Vector operator/(const Vector& other) const noexcept 
+        Vector operator/(const Vector& other) const noexcept
         requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
         {
             xsimd::batch<T> a, b;
@@ -409,7 +409,7 @@ namespace Pulsarion::Math
             result.store_aligned(&resultVector.x);
             return resultVector;
         }
-        Vector operator/(const Vector& other) const noexcept 
+        Vector operator/(const Vector& other) const noexcept
         // ReSharper disable once CppRedundantBooleanExpressionArgument
             requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
         {
@@ -426,7 +426,7 @@ namespace Pulsarion::Math
             return resultVector;
         }
 
-        [[nodiscard]] T Dot(const Vector& other) 
+        [[nodiscard]] T Dot(const Vector& other)
         requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
         {
             xsimd::batch<T> a, b;

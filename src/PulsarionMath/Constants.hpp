@@ -2,6 +2,8 @@
 
 #include "Core.hpp"
 
+#include <numbers>
+
 namespace Pulsarion::Math
 {
     template<float_type T>
@@ -10,21 +12,21 @@ namespace Pulsarion::Math
     template<>
     struct Constants<float_normalp>
     {
-        static constexpr float Pi = 3.141592653589793F; // Most accurate float pi
-		static constexpr float E = 2.718281828459045F; // Most accurate float e
+        static constexpr float Pi = std::numbers::pi_v<float>;
+		static constexpr float E = std::numbers::e_v<float>;
     };
 
     template<>
 	struct Constants<float_highp>
 	{
-		static constexpr double Pi = 3.1415926535897932384626433832795028; // Most accurate double pi
-        static constexpr double E = 2.71828182845904523536028747135266231; // Most accurate double e
-	};
+		static constexpr double Pi = std::numbers::pi_v<double>;
+        static constexpr double E = std::numbers::e_v<double>;
+    };
 
     template<>
 	struct Constants<float_extp>
     {
-		static constexpr long double Pi = 3.1415926535897932384626433832795028L; // Most accurate long double pi for 80-bit
-		static constexpr long double E = 2.71828182845904523536028747135266231L; // Most accurate long double e for 80-bit, we ignore 128-bit, as 80 bit precision is enough
+		static constexpr long double Pi = std::numbers::pi_v<long double>;
+		static constexpr long double E = std::numbers::e_v<long double>;
     };
 }
