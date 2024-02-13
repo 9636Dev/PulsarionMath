@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Simd.hpp"
 
 #include <array>
 #include <ostream>
@@ -51,66 +52,6 @@ namespace Pulsarion::Math
             return Vector(x / scalarT, y / scalarT);
         }
 
-#ifdef PULSARION_MATH_USE_SIMD
-        Vector operator*(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
-        {
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(data.data());
-            b = xsimd::batch<T>::load_aligned(other.data.data());
-            xsimd::batch<T> result = a * b;
-            Vector resultVector;
-            result.store_aligned(&resultVector);
-            return resultVector;
-        }
-
-        Vector operator*(const Vector& other) const noexcept
-        requires std::same_as<T, float_extp>
-        {
-            Vector result;
-            result.x = x * other.x;
-            result.y = y * other.y;
-            return result;
-        }
-
-        Vector operator/(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
-        {
-            if (other.x == 0 || other.y == 0)
-                return Vector(0, 0); // Avoid division by zero
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(data.data());
-            b = xsimd::batch<T>::load_aligned(other.data.data());
-            xsimd::batch<T> result = a / b;
-            Vector resultVector;
-            result.store_aligned(&resultVector);
-            return resultVector;
-        }
-
-        Vector operator/(const Vector& other) const noexcept
-        requires std::same_as<T, float_extp>
-        {
-            if (other.x == 0 || other.y == 0)
-                return Vector(0, 0); // Avoid division by zero
-            return Vector(x / other.x, y / other.y);
-        }
-
-        // TODO: Benchmark Dot to determine if SIMD is worth it
-
-        [[nodiscard]] T Dot(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || std::same_as<T, float_highp>)
-        {
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(data.data());
-            b = xsimd::batch<T>::load_aligned(other.data.data());
-            xsimd::batch<T> result = a * b;
-            return reduce_add(result);
-        }
-
-        [[nodiscard]] T Dot(const Vector& other) const noexcept
-        requires std::same_as<T, float_extp> { return x * other.x + y * other.y; }
-
-#else
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y); }
         Vector operator/(const Vector& other) const noexcept
         {
@@ -119,8 +60,6 @@ namespace Pulsarion::Math
             return Vector(x / other.x, y / other.y);
         }
         [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y; }
-
-#endif
 
         Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y); }
         Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y); }
@@ -319,7 +258,7 @@ namespace Pulsarion::Math
         union PULSARION_MATH_ALIGN
         {
             struct { T x, y, z; };
-            T data[3];
+            std::array<T, 3> data;
         };
     };
 
@@ -367,98 +306,11 @@ namespace Pulsarion::Math
             return Vector(x / scalarT, y / scalarT, z / scalarT, w / scalarT);
         }
 
-#ifdef PULSARION_MATH_USE_SIMD
-        Vector operator*(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
-        {
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(&x);
-            b = xsimd::batch<T>::load_aligned(&other.x);
-            xsimd::batch<T> result = a * b;
-            Vector resultVector;
-            result.store_aligned(&resultVector.x);
-            return resultVector;
-        }
-
-        Vector operator*(const Vector& other) const noexcept
-        // ReSharper disable once CppRedundantBooleanExpressionArgument
-            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        {
-            xsimd::batch<T> a1, a2, b1, b2;
-            a1 = xsimd::batch<T>::load_aligned(&x);
-            a2 = xsimd::batch<T>::load_unaligned(&z);
-            b1 = xsimd::batch<T>::load_aligned(&other.x);
-            b2 = xsimd::batch<T>::load_unaligned(&other.z);
-            xsimd::batch<T> result1 = a1 * b1;
-            xsimd::batch<T> result2 = a2 * b2;
-            Vector resultVector;
-            result1.store_aligned(&resultVector.x);
-            result2.store_unaligned(&resultVector.z);
-            return resultVector;
-        }
-
-
-        Vector operator/(const Vector& other) const noexcept
-        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
-        {
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(&x);
-            b = xsimd::batch<T>::load_aligned(&other.x);
-            xsimd::batch<T> result = a / b;
-            Vector resultVector;
-            result.store_aligned(&resultVector.x);
-            return resultVector;
-        }
-        Vector operator/(const Vector& other) const noexcept
-        // ReSharper disable once CppRedundantBooleanExpressionArgument
-            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        {
-            xsimd::batch<T> a1, a2, b1, b2;
-            a1 = xsimd::batch<T>::load_aligned(&x);
-            a2 = xsimd::batch<T>::load_unaligned(&z);
-            b1 = xsimd::batch<T>::load_aligned(&other.x);
-            b2 = xsimd::batch<T>::load_unaligned(&other.z);
-            xsimd::batch<T> result1 = a1 / b1;
-            xsimd::batch<T> result2 = a2 / b2;
-            Vector resultVector;
-            result1.store_aligned(&resultVector.x);
-            result2.store_unaligned(&resultVector.z);
-            return resultVector;
-        }
-
-        [[nodiscard]] T Dot(const Vector& other)
-        requires (std::same_as<T, float_normalp> || (std::same_as<T, float_highp> && std::same_as<PULSARION_MATH_SIMD, xsimd::avx>))
-        {
-            xsimd::batch<T> a, b;
-            a = xsimd::batch<T>::load_aligned(&x);
-            b = xsimd::batch<T>::load_aligned(&other.x);
-            xsimd::batch<T> result = a * b;
-            return xsimd::reduce_add(result);
-        }
-
-        [[nodiscard]] T Dot(const Vector& other)
-        // ReSharper disable once CppRedundantBooleanExpressionArgument
-            requires (std::same_as<T, float_highp> && !std::same_as<PULSARION_MATH_SIMD, xsimd::avx>)
-        {
-            xsimd::batch<T> a1, a2, b1, b2;
-            a1 = xsimd::batch<T>::load_aligned(&x);
-            a2 = xsimd::batch<T>::load_unaligned(&z);
-            b1 = xsimd::batch<T>::load_aligned(&other.x);
-            b2 = xsimd::batch<T>::load_unaligned(&other.z);
-            xsimd::batch<T> result1 = a1 / b1;
-            xsimd::batch<T> result2 = a2 / b2;
-            return xsimd::reduce_add(result1) + xsimd::reduce_add(result2);
-        }
-
-#else
+        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y, z + other.z, w + other.w); }
+        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z, w - other.w); }
         Vector operator*(const Vector& other) const noexcept { return Vector(x * other.x, y * other.y, z * other.z, w * other.w); }
         Vector operator/(const Vector& other) const noexcept { return Vector(x / other.x, y / other.y, z / other.z, w / other.w); }
         [[nodiscard]] T Dot(const Vector& other) const noexcept { return x * other.x + y * other.y + z * other.z + w * other.w; }
-
-#endif
-
-        Vector operator+(const Vector& other) const noexcept { return Vector(x + other.x, y + other.y, z + other.z, w + other.w); }
-        Vector operator-(const Vector& other) const noexcept { return Vector(x - other.x, y - other.y, z - other.z, w - other.w); }
         [[nodiscard]] Vector Cross3D(const Vector& other) const noexcept
         {
             return Vector(
@@ -468,6 +320,7 @@ namespace Pulsarion::Math
                 0                       // w component
             );
         }
+
         [[nodiscard]] T Magnitude() const noexcept { return Sqrt(MagnitudeSquared()); }
         [[nodiscard]] T MagnitudeSquared() const noexcept { return x * x + y * y + z * z + w * w; }
         [[nodiscard]] T InverseMagnitudeLowP() const noexcept { return FastInverseSqrt(MagnitudeSquared()); }
@@ -559,6 +412,162 @@ namespace Pulsarion::Math
             std::array<T, 4> data;
         };
     };
+
+
+#ifdef PULSARION_MATH_SIMD_SSE4_1
+    static_assert(alignof(Vector<float_normalp, 2>) == 16);
+    static_assert(alignof(Vector<float_normalp, 3>) == 16);
+    static_assert(alignof(Vector<float_normalp, 4>) == 16);
+    static_assert(alignof(Vector<float_highp, 2>) == 16);
+    static_assert(alignof(Vector<float_highp, 3>) == 16);
+    static_assert(alignof(Vector<float_highp, 4>) == 16);
+
+    template<>
+    inline Vector<float_normalp, 2> Vector<float_normalp, 2>::operator*(const Vector& other) const noexcept
+    {
+        __m128 a = _mm_load_ps(data.data());
+        __m128 b = _mm_load_ps(other.data.data());
+        __m128 result = _mm_mul_ps(a, b);
+        Vector resultVector;
+        _mm_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_normalp, 3> Vector<float_normalp, 3>::operator*(const Vector& other) const noexcept
+    {
+        __m128 a = _mm_load_ps(data.data());
+        __m128 b = _mm_load_ps(other.data.data());
+        __m128 result = _mm_mul_ps(a, b);
+        Vector resultVector;
+        _mm_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_normalp, 4> Vector<float_normalp, 4>::operator*(const Vector& other) const noexcept
+    {
+        __m128 a = _mm_load_ps(data.data());
+        __m128 b = _mm_load_ps(other.data.data());
+        __m128 result = _mm_mul_ps(a, b);
+        Vector resultVector;
+        _mm_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 2> Vector<float_highp, 2>::operator*(const Vector& other) const noexcept
+    {
+        __m128d a = _mm_load_pd(data.data());
+        __m128d b = _mm_load_pd(other.data.data());
+        __m128d result = _mm_mul_pd(a, b);
+        Vector resultVector;
+        _mm_store_pd(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 3> Vector<float_highp, 3>::operator*(const Vector& other) const noexcept
+    {
+        // SSE is only able to load 2 doubles at a time, so the third component is just done normally
+        __m128d a = _mm_load_pd(data.data());
+        __m128d b = _mm_load_pd(other.data.data());
+        __m128d result = _mm_mul_pd(a, b);
+        Vector resultVector;
+        _mm_store_pd(resultVector.data.data(), result);
+        resultVector.z = z * other.z;
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 4> Vector<float_highp, 4>::operator*(const Vector& other) const noexcept
+    {
+        __m128d a1 = _mm_load_pd(data.data());
+        __m128d a2 = _mm_loadu_pd(data.data() + 2); // This is unaligned
+        __m128d b1 = _mm_load_pd(other.data.data());
+        __m128d b2 = _mm_loadu_pd(other.data.data() + 2);
+        __m128d result1 = _mm_mul_pd(a1, b1);
+        __m128d result2 = _mm_mul_pd(a2, b2);
+
+        Vector resultVector;
+        _mm_store_pd(resultVector.data.data(), result1);
+        _mm_storeu_pd(resultVector.data.data() + 2, result2);
+        return resultVector;
+    }
+#elif defined(PULSARION_MATH_SIMD_AVX)
+    static_assert(alignof(Vector<float_normalp, 2>) == 32);
+    static_assert(alignof(Vector<float_normalp, 3>) == 32);
+    static_assert(alignof(Vector<float_normalp, 4>) == 32);
+    static_assert(alignof(Vector<float_highp, 2>) == 32);
+    static_assert(alignof(Vector<float_highp, 3>) == 32);
+    static_assert(alignof(Vector<float_highp, 4>) == 32);
+
+    template<>
+    inline Vector<float_normalp, 2> Vector<float_normalp, 2>::operator*(const Vector& other) const noexcept
+    {
+        __m256 a = _mm256_load_ps(data.data());
+        __m256 b = _mm256_load_ps(other.data.data());
+        __m256 result = _mm256_mul_ps(a, b);
+        Vector resultVector;
+        _mm256_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_normalp, 3> Vector<float_normalp, 3>::operator*(const Vector& other) const noexcept
+    {
+        __m256 a = _mm256_load_ps(data.data());
+        __m256 b = _mm256_load_ps(other.data.data());
+        __m256 result = _mm256_mul_ps(a, b);
+        Vector resultVector;
+        _mm256_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_normalp, 4> Vector<float_normalp, 4>::operator*(const Vector& other) const noexcept
+    {
+        __m256 a = _mm256_load_ps(data.data());
+        __m256 b = _mm256_load_ps(other.data.data());
+        __m256 result = _mm256_mul_ps(a, b);
+        Vector resultVector;
+        _mm256_store_ps(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 2> Vector<float_highp, 2>::operator*(const Vector& other) const noexcept
+    {
+        __m256d a = _mm256_load_pd(data.data());
+        __m256d b = _mm256_load_pd(other.data.data());
+        __m256d result = _mm256_mul_pd(a, b);
+        Vector resultVector;
+        _mm256_store_pd(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 3> Vector<float_highp, 3>::operator*(const Vector& other) const noexcept
+    {
+        __m256d a = _mm256_load_pd(data.data());
+        __m256d b = _mm256_load_pd(other.data.data());
+        __m256d result = _mm256_mul_pd(a, b);
+        Vector resultVector;
+        _mm256_store_pd(resultVector.data.data(), result);
+        return resultVector;
+    }
+
+    template<>
+    inline Vector<float_highp, 4> Vector<float_highp, 4>::operator*(const Vector& other) const noexcept
+    {
+        __m256d a = _mm256_load_pd(data.data());
+        __m256d b = _mm256_load_pd(other.data.data());
+        __m256d result = _mm256_mul_pd(a, b);
+        Vector resultVector;
+        _mm256_store_pd(resultVector.data.data(), result);
+        return resultVector;
+    }
+#endif
 
     // Explicit instantiations
     template class Vector<float_normalp, 2>;

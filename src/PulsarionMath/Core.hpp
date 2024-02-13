@@ -4,8 +4,6 @@
 #include <cmath>
 #include <concepts>
 
-#define PULSARION_MATH_ALIGN
-
 namespace Pulsarion::Math
 {
     using float_normalp = float; // Normal precision float

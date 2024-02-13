@@ -5,6 +5,26 @@
 
 namespace Pulsarion::Math
 {
+    template<float_type T, size_t N>
+    class MatrixRow
+    {
+    public:
+        T operator[](size_t index) const noexcept
+        {
+            return data[index];
+        }
+
+        T& operator[](size_t index) noexcept
+        {
+            return data[index];
+        }
+
+        union
+        {
+            std::array<T, N> data;
+        };
+    };
+
     template <float_type T, size_t C, size_t R>
     class Matrix;
 
@@ -246,12 +266,12 @@ namespace Pulsarion::Math
         }
 #endif
 
-        const Vector<T, 4>& operator[](size_t index) const noexcept
+        const MatrixRow<T, 4>& operator[](size_t index) const noexcept
         {
             return columns[index];
         }
 
-        Vector<T, 4>& operator[](size_t index) noexcept
+        MatrixRow<T, 4>& operator[](size_t index) noexcept
         {
             return columns[index];
         }
@@ -284,9 +304,9 @@ namespace Pulsarion::Math
 			return true;
 		}
 
-        union
+        union PULSARION_MATH_ALIGN
         {
-            Vector<T, 4> columns[4];
+            std::array<MatrixRow<T, 4>, 4> columns;
             /// <summary>
             /// Stored in column-major order, so the first 4 elements are the first column, the next 4 the second column, etc. [2] would be [0][2]
             /// </summary>

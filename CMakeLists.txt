@@ -43,6 +43,7 @@ else()
     # Only ever build as static library, since there are no exports, and only one arbituary source file
     add_library(PulsarionMath STATIC
             src/PulsarionMath/Core.hpp
+            src/PulsarionMath/Simd.hpp
             src/PulsarionMath/Vector.hpp
             src/PulsarionMath/MatrixTransform.hpp
             src/PulsarionMath/Matrix.hpp
@@ -65,7 +66,7 @@ if (PULSARION_SIMD STREQUAL "SSE4.1")
     target_compile_definitions(PulsarionMath PUBLIC PULSARION_MATH_SIMD_SSE4_1)
     # Add Compiler flags for SSE4.1
     if (MSVC)
-        target_compile_options(PulsarionMath PUBLIC "/arch:SSE4.1")
+        target_compile_options(PulsarionMath PUBLIC "/arch:AVX") # SSE4.1 is included in AVX
     else()
         target_compile_options(PulsarionMath PUBLIC "-msse4.1")
     endif()
