@@ -3,8 +3,6 @@
 #include "Core.hpp"
 #include "Vector.hpp"
 
-#include <xsimd/xsimd.hpp>
-
 namespace Pulsarion::Math
 {
     template <float_type T, size_t C, size_t R>
