@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "Core.hpp"
 #include "Matrix.hpp"
 
@@ -65,7 +65,7 @@ namespace Pulsarion::Math
 		{
 			return Quaternion(w + other.w, x + other.x, y + other.y, z + other.z);
 		}
-        
+
         Quaternion operator-(const Quaternion& other) const noexcept
         {
             return Quaternion(w - other.w, x - other.x, y - other.y, z - other.z);
@@ -170,3 +170,4 @@ namespace Pulsarion::Math
 }
 
 
+*/

@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Matrix.hpp"
 
 namespace Pulsarion::Math
@@ -131,3 +132,4 @@ namespace Pulsarion::Math
 		return matrix * MatrixRotate(angle, axis);
 	}
 }
+*/

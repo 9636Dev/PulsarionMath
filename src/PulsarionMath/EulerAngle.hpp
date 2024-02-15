@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Conversion.hpp"
 #include "Quaternion.hpp"
 #include "Vector.hpp"
@@ -49,3 +50,4 @@ namespace Pulsarion::Math
 		);
 	}
 }
+*/

@@ -35,17 +35,11 @@ namespace Pulsarion
     using ldouble3 = Math::Vector<long double, 3>;
     using ldouble4 = Math::Vector<long double, 4>;
 
-    using Mat4 = Math::Matrix<float, 4, 4>;
-    using Mat4f = Math::Matrix<float, 4, 4>;
-    using Mat4d = Math::Matrix<double, 4, 4>;
-    using Mat4ld = Math::Matrix<long double, 4, 4>;
-    using Mat4x4 = Math::Matrix<float, 4, 4>;
-    using Mat4x4f = Math::Matrix<float, 4, 4>;
-    using Mat4x4d = Math::Matrix<double, 4, 4>;
-    using Mat4x4ld = Math::Matrix<long double, 4, 4>;
+    using Mat4 = Math::Mat4;
 
-    using Quaternion = Math::Quaternion<float>;
+    /*using Quaternion = Math::Quaternion<float>;
     using Quaternionf = Math::Quaternion<float>;
     using Quaterniond = Math::Quaternion<double>;
     using Quaternionld = Math::Quaternion<long double>;
+    */
 }

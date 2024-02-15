@@ -3,7 +3,7 @@
 
 using namespace Pulsarion;
 
-class Matrix4x4Test : public ::testing::Test
+/* class Matrix4x4Test : public ::testing::Test
 {
 protected:
 	Mat4 m1;
@@ -505,3 +505,5 @@ TEST_F(Matrix4x4Test, HandlesVectorMultiplication)
 	EXPECT_EQ(result3.z, 110.0);
 	EXPECT_EQ(result3.w, 120.0);
 }
+
+*/

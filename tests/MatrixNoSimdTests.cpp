@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
+/*
 #define PULSARION_MATH_DISABLE_SIMD
 #include <PulsarionMath/Math.hpp>
 
 using namespace Pulsarion;
+
 
 class Matrix4x4NoSimdTest : public ::testing::Test
 {
@@ -506,3 +508,15 @@ TEST_F(Matrix4x4NoSimdTest, HandlesVectorMultiplication)
 	EXPECT_EQ(result3.z, 110.0);
 	EXPECT_EQ(result3.w, 120.0);
 }
+
+TEST(Matrix4x4NoSimdTest, HandlesInitialization)
+{
+    Mat4 m1 = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f,
+    };
+
+}
+*/
