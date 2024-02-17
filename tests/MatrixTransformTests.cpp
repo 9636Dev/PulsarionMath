@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+
 #include <PulsarionMath/Math.hpp>
 
 using namespace Pulsarion;

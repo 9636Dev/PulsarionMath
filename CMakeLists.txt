@@ -14,24 +14,16 @@ if (NOT DEFINED PULSARION_LIBRARY_TYPE)
 endif()
 
 set(PULSARION_MATH_HEADERS
-    src/PulsarionMath/Core.hpp
-    src/PulsarionMath/Vector.hpp
-    src/PulsarionMath/MatrixTransform.hpp
-    src/PulsarionMath/Matrix.hpp
-    src/PulsarionMath/Matrix/Util.hpp
-    src/PulsarionMath/Matrix/Mat4x4Row.hpp
-    src/PulsarionMath/Matrix/Mat4x4Column.hpp
-    src/PulsarionMath/Math.hpp
-    src/PulsarionMath/Quaternion.hpp
-    src/PulsarionMath/Constants.hpp
-    src/PulsarionMath/Conversion.hpp
-    src/PulsarionMath/EulerAngle.hpp
-    src/PulsarionMath/Complex.hpp
+    src/PulsarionMath/Qualifiers.hpp
+)
+
+# The inline files that should compile with the library
+set(PULSARION_MATH_SOURCES
 )
 
 if (DEFINED PULSARION_MATH_HEADER_ONLY)
     MESSAGE(STATUS "PulsarionMath: Using header only mode")
-    add_library(PulsarionMath INTERFACE ${PULSARION_MATH_HEADERS})
+    add_library(PulsarionMath INTERFACE ${PULSARION_MATH_HEADERS} ${PULSARION_MATH_SOURCES})
 
     add_dependencies(PulsarionMath PulsarionCore)
     target_link_libraries(PulsarionMath INTERFACE PulsarionCore)
@@ -40,8 +32,9 @@ if (DEFINED PULSARION_MATH_HEADER_ONLY)
     set(PULSARION_MATH_TYPE INTERFACE)
 else()
     # Only ever build as static library, since there are no exports, and only one arbituary source file
-    add_library(PulsarionMath STATIC
+    add_library(PulsarionMath ${PULSARION_LIBRARY_TYPE}
         ${PULSARION_MATH_HEADERS}
+        ${PULSARION_MATH_SOURCES}
         src/PulsarionMath/Math.cpp
     )
 
