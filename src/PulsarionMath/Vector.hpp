@@ -10,7 +10,6 @@
 namespace Pulsarion::Math
 {
     template<float_type T, size_t N>
-    requires (N > 0 && N <= 4)
     class Vector;
 
     // Vector with 2 components
@@ -406,168 +405,12 @@ namespace Pulsarion::Math
             return x == other.x && y == other.y && z == other.z && w == other.w;
         }
 
-        union PULSARION_MATH_ALIGN
+        union
         {
             struct { T x, y, z, w; };
             std::array<T, 4> data;
         };
     };
-
-
-#ifdef PULSARION_MATH_SIMD_SSE4_1
-    static_assert(alignof(Vector<float_normalp, 2>) == 16);
-    static_assert(alignof(Vector<float_normalp, 3>) == 16);
-    static_assert(alignof(Vector<float_normalp, 4>) == 16);
-    static_assert(alignof(Vector<float_highp, 2>) == 16);
-    static_assert(alignof(Vector<float_highp, 3>) == 16);
-    static_assert(alignof(Vector<float_highp, 4>) == 16);
-
-    template<>
-    inline Vector<float_normalp, 2> Vector<float_normalp, 2>::operator*(const Vector& other) const noexcept
-    {
-        __m128 a = _mm_load_ps(data.data());
-        __m128 b = _mm_load_ps(other.data.data());
-        __m128 result = _mm_mul_ps(a, b);
-        Vector resultVector;
-        _mm_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_normalp, 3> Vector<float_normalp, 3>::operator*(const Vector& other) const noexcept
-    {
-        __m128 a = _mm_load_ps(data.data());
-        __m128 b = _mm_load_ps(other.data.data());
-        __m128 result = _mm_mul_ps(a, b);
-        Vector resultVector;
-        _mm_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_normalp, 4> Vector<float_normalp, 4>::operator*(const Vector& other) const noexcept
-    {
-        __m128 a = _mm_load_ps(data.data());
-        __m128 b = _mm_load_ps(other.data.data());
-        __m128 result = _mm_mul_ps(a, b);
-        Vector resultVector;
-        _mm_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 2> Vector<float_highp, 2>::operator*(const Vector& other) const noexcept
-    {
-        __m128d a = _mm_load_pd(data.data());
-        __m128d b = _mm_load_pd(other.data.data());
-        __m128d result = _mm_mul_pd(a, b);
-        Vector resultVector;
-        _mm_store_pd(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 3> Vector<float_highp, 3>::operator*(const Vector& other) const noexcept
-    {
-        // SSE is only able to load 2 doubles at a time, so the third component is just done normally
-        __m128d a = _mm_load_pd(data.data());
-        __m128d b = _mm_load_pd(other.data.data());
-        __m128d result = _mm_mul_pd(a, b);
-        Vector resultVector;
-        _mm_store_pd(resultVector.data.data(), result);
-        resultVector.z = z * other.z;
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 4> Vector<float_highp, 4>::operator*(const Vector& other) const noexcept
-    {
-        __m128d a1 = _mm_load_pd(data.data());
-        __m128d a2 = _mm_loadu_pd(data.data() + 2); // This is unaligned
-        __m128d b1 = _mm_load_pd(other.data.data());
-        __m128d b2 = _mm_loadu_pd(other.data.data() + 2);
-        __m128d result1 = _mm_mul_pd(a1, b1);
-        __m128d result2 = _mm_mul_pd(a2, b2);
-
-        Vector resultVector;
-        _mm_store_pd(resultVector.data.data(), result1);
-        _mm_storeu_pd(resultVector.data.data() + 2, result2);
-        return resultVector;
-    }
-#elif defined(PULSARION_MATH_SIMD_AVX)
-    static_assert(alignof(Vector<float_normalp, 2>) == 32);
-    static_assert(alignof(Vector<float_normalp, 3>) == 32);
-    static_assert(alignof(Vector<float_normalp, 4>) == 32);
-    static_assert(alignof(Vector<float_highp, 2>) == 32);
-    static_assert(alignof(Vector<float_highp, 3>) == 32);
-    static_assert(alignof(Vector<float_highp, 4>) == 32);
-
-    template<>
-    inline Vector<float_normalp, 2> Vector<float_normalp, 2>::operator*(const Vector& other) const noexcept
-    {
-        __m256 a = _mm256_load_ps(data.data());
-        __m256 b = _mm256_load_ps(other.data.data());
-        __m256 result = _mm256_mul_ps(a, b);
-        Vector resultVector;
-        _mm256_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_normalp, 3> Vector<float_normalp, 3>::operator*(const Vector& other) const noexcept
-    {
-        __m256 a = _mm256_load_ps(data.data());
-        __m256 b = _mm256_load_ps(other.data.data());
-        __m256 result = _mm256_mul_ps(a, b);
-        Vector resultVector;
-        _mm256_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_normalp, 4> Vector<float_normalp, 4>::operator*(const Vector& other) const noexcept
-    {
-        __m256 a = _mm256_load_ps(data.data());
-        __m256 b = _mm256_load_ps(other.data.data());
-        __m256 result = _mm256_mul_ps(a, b);
-        Vector resultVector;
-        _mm256_store_ps(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 2> Vector<float_highp, 2>::operator*(const Vector& other) const noexcept
-    {
-        __m256d a = _mm256_load_pd(data.data());
-        __m256d b = _mm256_load_pd(other.data.data());
-        __m256d result = _mm256_mul_pd(a, b);
-        Vector resultVector;
-        _mm256_store_pd(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 3> Vector<float_highp, 3>::operator*(const Vector& other) const noexcept
-    {
-        __m256d a = _mm256_load_pd(data.data());
-        __m256d b = _mm256_load_pd(other.data.data());
-        __m256d result = _mm256_mul_pd(a, b);
-        Vector resultVector;
-        _mm256_store_pd(resultVector.data.data(), result);
-        return resultVector;
-    }
-
-    template<>
-    inline Vector<float_highp, 4> Vector<float_highp, 4>::operator*(const Vector& other) const noexcept
-    {
-        __m256d a = _mm256_load_pd(data.data());
-        __m256d b = _mm256_load_pd(other.data.data());
-        __m256d result = _mm256_mul_pd(a, b);
-        Vector resultVector;
-        _mm256_store_pd(resultVector.data.data(), result);
-        return resultVector;
-    }
-#endif
 
     // Explicit instantiations
     template class Vector<float_normalp, 2>;

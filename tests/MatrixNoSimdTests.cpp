@@ -1,4 +1,49 @@
 #include <gtest/gtest.h>
+#include "PulsarionMath/Matrix/Util.hpp"
+
+#define PULSARION_MATH_DISABLE_SIMD
+#include <PulsarionMath/Math.hpp>
+
+using namespace Pulsarion;
+
+class Matrix4x4NoSimdTest : public ::testing::Test
+{
+protected:
+    Math::Matrix<float, 4, 4, Math::MatrixMajor::RowMajor> m1;
+
+    void SetUp() override
+    {
+        m1 = {
+            1.0f, 2.0f, 3.0f, 4.0f,
+            5.0f, 6.0f, 7.0f, 8.0f,
+            9.0f, 10.0f, 11.0f, 12.0f,
+            13.0f, 14.0f, 15.0f, 16.0f
+        };
+    }
+};
+
+TEST_F(Matrix4x4NoSimdTest, HandlesIdentity)
+{
+    auto identity1 = Math::Matrix<float, 4, 4, Math::MatrixMajor::RowMajor>();
+    EXPECT_FLOAT_EQ(identity1.data[0], 1.0f);
+    EXPECT_FLOAT_EQ(identity1.data[1], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[2], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[3], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[4], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[5], 1.0f);
+    EXPECT_FLOAT_EQ(identity1.data[6], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[7], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[8], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[9], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[10], 1.0f);
+    EXPECT_FLOAT_EQ(identity1.data[11], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[12], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[13], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[14], 0.0f);
+    EXPECT_FLOAT_EQ(identity1.data[15], 1.0f);
+
+}
+
 /*
 #define PULSARION_MATH_DISABLE_SIMD
 #include <PulsarionMath/Math.hpp>

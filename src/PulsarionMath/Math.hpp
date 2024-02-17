@@ -35,7 +35,14 @@ namespace Pulsarion
     using ldouble3 = Math::Vector<long double, 3>;
     using ldouble4 = Math::Vector<long double, 4>;
 
-    using Mat4 = Math::Mat4;
+    // We use the defines to create aliases for the different types of matrices
+#ifdef PULSARION_MATH_MATRIX_ROW_MAJOR
+    using Mat4 = Math::Matrix<Math::float_normalp, 4, 4, Math::MatrixMajor::RowMajor>;
+#elif defined(PULSARION_MATH_MATRIX_COLUMN_MAJOR)
+    using Mat4 = Math::Matrix<Math::float_normalp, 4, 4, Math::MatrixMajor::ColumnMajor>;
+#elif defined(PULSARION_MATH_MATRIX_DUAL_MAJOR)
+    using Mat4 = Math::Matrix<Math::float_normalp, 4, 4, Math::MatrixMajor::BothMajor>;
+#endif
 
     /*using Quaternion = Math::Quaternion<float>;
     using Quaternionf = Math::Quaternion<float>;
