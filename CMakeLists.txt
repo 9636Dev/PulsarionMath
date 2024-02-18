@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PULSARION_SIMD "SSE4.1" CACHE STRING "Choose the SIMD instruction set: SSE4.1, AVX")
-set_property(CACHE PULSARION_SIMD PROPERTY STRINGS "SSE4.1" "AVX")
+set_property(CACHE PULSARION_SIMD PROPERTY STRINGS "None" "SSE4.1")
 
 set(PULSARION_MATRIX_MAJOR "Column" CACHE STRING "Choose the major matrix order: Column, Row, or Both")
 set_property(CACHE PULSARION_MATRIX_MAJOR PROPERTY STRINGS "Column" "Row" "Both")
@@ -14,37 +14,41 @@ if (NOT DEFINED PULSARION_LIBRARY_TYPE)
 endif()
 
 set(PULSARION_MATH_HEADERS
-    src/PulsarionMath/Qualifiers.hpp
+    src/PulsarionMath/Core.hpp
+    src/PulsarionMath/Qualifier.hpp
+    src/PulsarionMath/DataStorage.hpp
+    src/PulsarionMath/Vector.hpp
 )
 
 # The inline files that should compile with the library
 set(PULSARION_MATH_SOURCES
+    src/PulsarionMath/Vector.inl
 )
 
-if (DEFINED PULSARION_MATH_HEADER_ONLY)
+if (PULSARION_MATH_HEADER_ONLY STREQUAL "ON" OR PULSARION_MATH_HEADER_ONLY STREQUAL "TRUE" OR PULSARION_MATH_HEADER_ONLY STREQUAL "1")
     MESSAGE(STATUS "PulsarionMath: Using header only mode")
     add_library(PulsarionMath INTERFACE ${PULSARION_MATH_HEADERS} ${PULSARION_MATH_SOURCES})
-
-    add_dependencies(PulsarionMath PulsarionCore)
-    target_link_libraries(PulsarionMath INTERFACE PulsarionCore)
-
-    target_include_directories(PulsarionMath INTERFACE src)
+    target_compile_definitions(PulsarionMath INTERFACE PULSARION_MATH_HEADER_ONLY)
     set(PULSARION_MATH_TYPE INTERFACE)
 else()
-    # Only ever build as static library, since there are no exports, and only one arbituary source file
-    add_library(PulsarionMath ${PULSARION_LIBRARY_TYPE}
-        ${PULSARION_MATH_HEADERS}
-        ${PULSARION_MATH_SOURCES}
-        src/PulsarionMath/Math.cpp
-    )
+    MESSAGE(FATAL_ERROR "PulsarionMath: Not implemented yet")
+    # Only ever build as static library, since there are no exports, and only one arbitrary source file
+    # add_library(PulsarionMath STATIC
+    #    ${PULSARION_MATH_HEADERS}
+    #    ${PULSARION_MATH_SOURCES}
+    #)
 
+    # if (PULSARION_LIBRARY_TYPE STREQUAL "SHARED")
+    #     target_compile_definitions(PulsarionMath PRIVATE PULSARION_BUILD_DLL)
+    # endif()
 
-    add_dependencies(PulsarionMath PulsarionCore)
-    target_link_libraries(PulsarionMath PUBLIC PulsarionCore)
-
-    target_include_directories(PulsarionMath PUBLIC src)
     set(PULSARION_MATH_TYPE PUBLIC)
 endif()
+
+add_dependencies(PulsarionMath PulsarionCore)
+target_link_libraries(PulsarionMath ${PULSARION_MATH_TYPE} PulsarionCore)
+
+target_include_directories(PulsarionMath ${PULSARION_MATH_TYPE} src)
 
 if (PULSARION_MATRIX_MAJOR STREQUAL "Column")
     message(STATUS "PulsarionMath: Using column major matrix order")
@@ -67,14 +71,6 @@ if (PULSARION_SIMD STREQUAL "SSE4.1")
         target_compile_options(PulsarionMath ${PULSARION_MATH_TYPE} "/arch:AVX") # SSE4.1 is included in AVX
     else()
         target_compile_options(PulsarionMath ${PULSARION_MATH_TYPE} "-msse4.1")
-    endif()
-elseif (PULSARION_SIMD STREQUAL "AVX")
-    message(STATUS "PulsarionMath: Using AVX SIMD instruction set")
-    target_compile_definitions(PulsarionMath ${PULSARION_MATH_TYPE} PULSARION_MATH_SIMD_AVX)
-    if (MSVC)
-        target_compile_options(PulsarionMath ${PULSARION_MATH_TYPE} "/arch:AVX")
-    else()
-        target_compile_options(PulsarionMath ${PULSARION_MATH_TYPE} "-mavx")
     endif()
 elseif (PULSARION_SIMD STREQUAL "None" OR NOT DEFINED PULSARION_SIMD)
     message(STATUS "PulsarionMath: No SIMD instruction set selected")
