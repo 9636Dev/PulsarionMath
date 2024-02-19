@@ -1,7 +1,5 @@
 #pragma once
 
-#include <type_traits>
-
 #include "Core.hpp"
 #include "Qualifier.hpp"
 #include "DataStorage.hpp"
@@ -22,7 +20,6 @@ namespace Pulsarion::Math
     public:
         DataStorage<N, T, Q> data;
 
-
         // ---- Constructors ----
         inline constexpr Vector(T x, T y, T z, T w) noexcept
         requires (N == 4) : data{ x, y, z, w } {}
@@ -42,16 +39,16 @@ namespace Pulsarion::Math
         inline constexpr T& operator[](std::size_t index) noexcept { return data.data[index]; }
         inline constexpr const T& operator[](std::size_t index) const noexcept { return data.data[index]; }
         inline constexpr T& x() noexcept { return data.data[0]; }
-        inline constexpr const T& x() const noexcept { return data.data[0]; }
-        inline constexpr T& y() noexcept { return data.data[1]; }
-        inline constexpr const T& y() const noexcept { return data.data[1]; }
-        inline constexpr T& z() noexcept
+        [[nodiscard]] inline constexpr const T& x() const noexcept { return data.data[0]; }
+        [[nodiscard]] inline constexpr T& y() noexcept { return data.data[1]; }
+        [[nodiscard]] inline constexpr const T& y() const noexcept { return data.data[1]; }
+        [[nodiscard]] inline constexpr T& z() noexcept
         requires (N >= 3) { return data.data[2]; }
-        inline constexpr const T& z() const noexcept
+        [[nodiscard]] inline constexpr const T& z() const noexcept
         requires (N >= 3) { return data.data[2]; }
-        inline constexpr T& w() noexcept
+        [[nodiscard]] inline constexpr T& w() noexcept
         requires (N == 4) { return data.data[3]; }
-        inline constexpr const T& w() const noexcept
+        [[nodiscard]] inline constexpr const T& w() const noexcept
         requires (N == 4) { return data.data[3]; }
 
         // ---- Unary arithmetic operators ----

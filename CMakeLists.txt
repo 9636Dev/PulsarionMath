@@ -31,16 +31,15 @@ if (PULSARION_MATH_HEADER_ONLY STREQUAL "ON" OR PULSARION_MATH_HEADER_ONLY STREQ
     target_compile_definitions(PulsarionMath INTERFACE PULSARION_MATH_HEADER_ONLY)
     set(PULSARION_MATH_TYPE INTERFACE)
 else()
-    MESSAGE(FATAL_ERROR "PulsarionMath: Not implemented yet")
     # Only ever build as static library, since there are no exports, and only one arbitrary source file
-    # add_library(PulsarionMath STATIC
-    #    ${PULSARION_MATH_HEADERS}
-    #    ${PULSARION_MATH_SOURCES}
-    #)
+    add_library(PulsarionMath STATIC
+        ${PULSARION_MATH_HEADERS}
+        ${PULSARION_MATH_SOURCES}
+    )
 
-    # if (PULSARION_LIBRARY_TYPE STREQUAL "SHARED")
-    #     target_compile_definitions(PulsarionMath PRIVATE PULSARION_BUILD_DLL)
-    # endif()
+    if (PULSARION_LIBRARY_TYPE STREQUAL "SHARED")
+         target_compile_definitions(PulsarionMath PRIVATE PULSARION_BUILD_DLL)
+    endif()
 
     set(PULSARION_MATH_TYPE PUBLIC)
 endif()

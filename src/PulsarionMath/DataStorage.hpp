@@ -4,6 +4,7 @@
 #include "Qualifier.hpp"
 
 #include <array>
+#include <forward_list>
 
 namespace Pulsarion::Math
 {
@@ -17,7 +18,8 @@ namespace Pulsarion::Math
         std::array<T, N> data;
 
         DataStorage() = default;
-        explicit DataStorage(const T& value) : data{ value } {} //  This sets all elements to the same value.
+        template<typename... Args>
+        explicit DataStorage(Args&&... args) : data{std::forward<Args>(args)...} {}
         DataStorage(const DataStorage&) = default;
         DataStorage(DataStorage&&) = default;
         DataStorage& operator=(const DataStorage&) = default;

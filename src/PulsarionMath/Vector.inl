@@ -1,7 +1,6 @@
-#include "Vector.hpp"
-
 namespace Pulsarion::Math
 {
+    template<>
     struct VectorFunctions<4, float, Qualifier::Packed>
     {
         static inline constexpr Vector<4, float, Qualifier::Packed> negate(const Vector<4, float, Qualifier::Packed>& vector) noexcept
