@@ -7,11 +7,7 @@
 namespace Pulsarion::Math
 {
     template<std::size_t N, Arithmetic_t T, Qualifier Q>
-    struct VectorFunctions; // Access functions for the Vector class.
-
-    template<>
-    struct VectorFunctions<4, float, Qualifier::Packed>;
-
+    struct PULSARION_MATH_API VectorFunctions; // Access functions for the Vector class.
 
     template<std::size_t N, Arithmetic_t T, Qualifier Q>
     requires (N >= 2 && N <= 4)
@@ -27,7 +23,12 @@ namespace Pulsarion::Math
         requires (N == 3) : data{ x, y, z } {}
         inline constexpr Vector(T x, T y) noexcept
         requires (N == 2) : data{ x, y } {}
-        explicit inline constexpr Vector(T value) noexcept : data{ value } {}
+        explicit inline constexpr Vector(T value) noexcept {
+            data.data[0] = value;
+            data.data[1] = value;
+            if constexpr (N >= 3) data.data[2] = value;
+            if constexpr (N == 4) data.data[3] = value;
+        }
         inline constexpr Vector() noexcept : Vector(0) {}
 
         inline constexpr Vector(const Vector&) noexcept = default;
@@ -63,8 +64,44 @@ namespace Pulsarion::Math
         inline constexpr Vector operator*(T scalar) const noexcept { return VectorFunctions<N, T, Q>::multiply(this, scalar); }
         inline constexpr Vector operator/(T scalar) const noexcept { return VectorFunctions<N, T, Q>::divide(this, scalar); }
     };
-}
 
-#ifdef PULSARION_MATH_HEADER_ONLY
-#include "Vector.inl"
-#endif
+    template<>
+    struct VectorFunctions<4, float, Qualifier::Packed>
+    {
+        static inline constexpr Vector<4, float, Qualifier::Packed> negate(const Vector<4, float, Qualifier::Packed>& vector) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ -vector.x(), -vector.y(), -vector.z(), -vector.w() };
+        }
+
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> add(const Vector<4, float, Qualifier::Packed>& left, const Vector<4, float, Qualifier::Packed>& right) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ left.x() + right.x(), left.y() + right.y(), left.z() + right.z(), left.w() + right.w() };
+        }
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> subtract(const Vector<4, float, Qualifier::Packed>& left, const Vector<4, float, Qualifier::Packed>& right) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ left.x() - right.x(), left.y() - right.y(), left.z() - right.z(), left.w() - right.w() };
+        }
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> multiply(const Vector<4, float, Qualifier::Packed>& left, const Vector<4, float, Qualifier::Packed>& right) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ left.x() * right.x(), left.y() * right.y(), left.z() * right.z(), left.w() * right.w() };
+        }
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> divide(const Vector<4, float, Qualifier::Packed>& left, const Vector<4, float, Qualifier::Packed>& right) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ left.x() / right.x(), left.y() / right.y(), left.z() / right.z(), left.w() / right.w() };
+        }
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> multiply(const Vector<4, float, Qualifier::Packed>& vector, float scalar) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ vector.x() * scalar, vector.y() * scalar, vector.z() * scalar, vector.w() * scalar };
+        }
+
+        static inline constexpr Vector<4, float, Qualifier::Packed> divide(const Vector<4, float, Qualifier::Packed>& vector, float scalar) noexcept
+        {
+            return Vector<4, float, Qualifier::Packed>{ vector.x() / scalar, vector.y() / scalar, vector.z() / scalar, vector.w() / scalar };
+        }
+    };
+}

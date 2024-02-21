@@ -20,33 +20,22 @@ set(PULSARION_MATH_HEADERS
     src/PulsarionMath/Vector.hpp
 )
 
-# The inline files that should compile with the library
 set(PULSARION_MATH_SOURCES
-    src/PulsarionMath/Vector.inl
+    src/PulsarionMath/Math.cpp
 )
 
-if (PULSARION_MATH_HEADER_ONLY STREQUAL "ON" OR PULSARION_MATH_HEADER_ONLY STREQUAL "TRUE" OR PULSARION_MATH_HEADER_ONLY STREQUAL "1")
-    MESSAGE(STATUS "PulsarionMath: Using header only mode")
+if (PULSARION_MATH_HEADER_ONLY STREQUAL "ON" OR PULSARION_MATH_HEADER_ONLY STREQUAL "TRUE")
+    message(STATUS "PulsarionMath: Building as header only library")
     add_library(PulsarionMath INTERFACE ${PULSARION_MATH_HEADERS} ${PULSARION_MATH_SOURCES})
-    target_compile_definitions(PulsarionMath INTERFACE PULSARION_MATH_HEADER_ONLY)
     set(PULSARION_MATH_TYPE INTERFACE)
 else()
-    # Only ever build as static library, since there are no exports, and only one arbitrary source file
-    add_library(PulsarionMath STATIC
-        ${PULSARION_MATH_HEADERS}
-        ${PULSARION_MATH_SOURCES}
-    )
-
-    if (PULSARION_LIBRARY_TYPE STREQUAL "SHARED")
-         target_compile_definitions(PulsarionMath PRIVATE PULSARION_BUILD_DLL)
-    endif()
-
+    message(STATUS "PulsarionMath: Building as static library")
+    add_library(PulsarionMath STATIC ${PULSARION_MATH_HEADERS} ${PULSARION_MATH_SOURCES})
     set(PULSARION_MATH_TYPE PUBLIC)
 endif()
 
 add_dependencies(PulsarionMath PulsarionCore)
 target_link_libraries(PulsarionMath ${PULSARION_MATH_TYPE} PulsarionCore)
-
 target_include_directories(PulsarionMath ${PULSARION_MATH_TYPE} src)
 
 if (PULSARION_MATRIX_MAJOR STREQUAL "Column")
