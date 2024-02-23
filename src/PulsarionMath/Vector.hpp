@@ -1,14 +1,11 @@
 #pragma once
 
-#include "Core.hpp"
 #include "Qualifier.hpp"
 #include "DataStorage.hpp"
+#include "VectorCommon.hpp"
 
 namespace Pulsarion::Math
 {
-    template<std::size_t N, Arithmetic_t T, Qualifier Q>
-    struct PULSARION_MATH_API VectorFunctions; // Access functions for the Vector class.
-
     template<std::size_t N, Arithmetic_t T, Qualifier Q>
     requires (N >= 2 && N <= 4)
     class Vector

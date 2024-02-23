@@ -18,6 +18,8 @@ set(PULSARION_MATH_HEADERS
     src/PulsarionMath/Qualifier.hpp
     src/PulsarionMath/DataStorage.hpp
     src/PulsarionMath/Vector.hpp
+    src/PulsarionMath/VectorCommon.hpp
+    src/PulsarionMath/Vector4Packed.hpp
 )
 
 set(PULSARION_MATH_SOURCES
