@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PULSARION_MATH_TEST_SOURCES
     Vector4PackedTests.cpp
+    Vector4AlignedTests.cpp
+    Matrix4x4Tests.cpp
 )
 add_executable(PulsarionMathTests ${PULSARION_MATH_TEST_SOURCES})
 

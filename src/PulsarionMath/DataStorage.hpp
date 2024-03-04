@@ -31,7 +31,7 @@ namespace Pulsarion::Math
     class DataStorage<4, T, Qualifier::Aligned>
     {
     public:
-        PULSARION_ALIGN std::array<T, 4> data;
+        PULSARION_MATH_ALIGN std::array<T, 4> data;
 
         DataStorage() = default;
         template<typename... Args>

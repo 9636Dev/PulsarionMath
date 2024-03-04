@@ -15,7 +15,8 @@ set(PULSARION_MATH_HEADERS
     src/PulsarionMath/DataStorage.hpp
     src/PulsarionMath/Vector.hpp
     src/PulsarionMath/VectorCommon.hpp
-    src/PulsarionMath/Vector4Packed.hpp
+    src/PulsarionMath/Matrix.hpp
+    src/PulsarionMath/MatrixCommon.hpp
 )
 
 if (PULSARION_SIMD STREQUAL "SSE4.1")
@@ -23,12 +24,14 @@ if (PULSARION_SIMD STREQUAL "SSE4.1")
     set(PULSARION_MATH_SOURCES
         src/PulsarionMath/Vector4PackedSSE.hpp
         src/PulsarionMath/Vector4AlignedSSE.hpp
+        src/PulsarionMath/Matrix4x4MSSE.hpp
     )
 elseif (PULSARION_SIMD STREQUAL "None" OR NOT DEFINED PULSARION_SIMD)
     message(STATUS "PulsarionMath: No SIMD instruction set selected")
     set(PULSARION_MATH_SOURCES
         src/PulsarionMath/Vector4Packed.hpp
         src/PulsarionMath/Vector4Aligned.hpp
+        src/PulsarionMath/Matrix4x4M.hpp
     )
 else()
     message(FATAL_ERROR "PulsarionMath: PULSARION_SIMD must be either SSE4.1, AVX, or None")
