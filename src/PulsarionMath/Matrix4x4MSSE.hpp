@@ -11,7 +11,7 @@ namespace Pulsarion::Math
     template<>
     struct MatrixFunctions<4, 4, float>
     {
-        inline constexpr static void TransposeInPlace(Matrix<4, 4, float>& matrix) noexcept
+       inline static void TransposeInPlace(Matrix<4, 4, float>& matrix) noexcept
         {
             __m128 row0 = _mm_load_ps(&matrix[0].x());
             __m128 row1 = _mm_load_ps(&matrix[1].x());

@@ -9,7 +9,7 @@ namespace Pulsarion::Math
     template<Arithmetic_t T>
     struct MatrixFunctions<4, 4, T>
     {
-        inline constexpr static void TransposeInPlace(Matrix<4, 4, T>& matrix) noexcept
+        inline static void TransposeInPlace(Matrix<4, 4, T>& matrix) noexcept
         {
             for (std::size_t i = 0; i < 4; ++i)
             {
@@ -21,7 +21,7 @@ namespace Pulsarion::Math
         };
 
 
-        inline constexpr static Matrix<4, 4, T> Multiply(const Matrix<4, 4, T>& left, const Matrix<4, 4, T>& right) noexcept
+        inline static Matrix<4, 4, T> Multiply(const Matrix<4, 4, T>& left, const Matrix<4, 4, T>& right) noexcept
         {
             Matrix<4, 4, T> result;
             // Column major multiplication algorithm
@@ -38,7 +38,7 @@ namespace Pulsarion::Math
             return result;
         }
 
-        inline constexpr static Vector<4, T, Qualifier::Aligned> VecMultiply(const Matrix<4, 4, T>& left, const Vector<4, T, Qualifier::Aligned>& right) noexcept
+        inline static Vector<4, T, Qualifier::Aligned> VecMultiply(const Matrix<4, 4, T>& left, const Vector<4, T, Qualifier::Aligned>& right) noexcept
         {
             Vector<4, T, Qualifier::Aligned> result;
             for (std::size_t i = 0; i < 4; ++i)
