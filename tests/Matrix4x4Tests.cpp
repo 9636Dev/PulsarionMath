@@ -80,3 +80,18 @@ TEST(Matrix4x4Tests, MatrixMultiply)
     EXPECT_FLOAT_EQ(542.0f, result.Get(3, 2));
     EXPECT_FLOAT_EQ(600.0f, result.Get(3, 3));
 }
+
+TEST(Matrix4x4Tests, VectorMultiply)
+{
+    Matrix<4, 4, float> m1(1.0f, 2.0f, 3.0f, 4.0f,
+                            5.0f, 6.0f, 7.0f, 8.0f,
+                            9.0f, 10.0f, 11.0f, 12.0f,
+                            13.0f, 14.0f, 15.0f, 16.0f);
+    Vector<4, float, Qualifier::Aligned> v(1.0f, 2.0f, 3.0f, 4.0f);
+
+    Vector<4, float, Qualifier::Aligned> result = m1 * v;
+    EXPECT_FLOAT_EQ(30.0f, result[0]);
+    EXPECT_FLOAT_EQ(70.0f, result[1]);
+    EXPECT_FLOAT_EQ(110.0f, result[2]);
+    EXPECT_FLOAT_EQ(150.0f, result[3]);
+}

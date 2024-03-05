@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PulsarionMath/Qualifier.hpp"
 #ifndef PULSARION_MATH_MATRIX_HPP
 #include "Matrix.hpp"
 #endif
@@ -27,19 +28,19 @@ namespace Pulsarion::Math
 
         inline static Matrix<4, 4, float> Multiply(const Matrix<4, 4, float>& left, const Matrix<4, 4, float>& right) noexcept
         {
-            __m128 in1[4];
-            __m128 in2[4];
+            __m128 in1[] = {
+                _mm_load_ps(&left[0].x()),
+                _mm_load_ps(&left[1].x()),
+                _mm_load_ps(&left[2].x()),
+                _mm_load_ps(&left[3].x()),
+            };
+            __m128 in2[] = {
+                _mm_load_ps(&right[0].x()),
+                _mm_load_ps(&right[1].x()),
+                _mm_load_ps(&right[2].x()),
+                _mm_load_ps(&right[3].x()),
+            };
             __m128 out[4];
-
-            in1[0] = _mm_load_ps(&left[0].x());
-            in1[1] = _mm_load_ps(&left[1].x());
-            in1[2] = _mm_load_ps(&left[2].x());
-            in1[3] = _mm_load_ps(&left[3].x());
-
-            in2[0] = _mm_load_ps(&right[0].x());
-            in2[1] = _mm_load_ps(&right[1].x());
-            in2[2] = _mm_load_ps(&right[2].x());
-            in2[3] = _mm_load_ps(&right[3].x());
 
             Matrix<4, 4, float> result;
             {
@@ -150,5 +151,42 @@ namespace Pulsarion::Math
 
             return result;
         }
+
+        inline static Vector<4, float, Qualifier::Aligned> VecMultiply(const Matrix<4, 4, float>& matrix, const Vector<4, float, Qualifier::Aligned>& vector) noexcept
+        {
+            __m128 v = _mm_load_ps(&vector.x());
+            __m128 m[] = {
+                _mm_load_ps(&matrix[0].x()),
+                _mm_load_ps(&matrix[1].x()),
+                _mm_load_ps(&matrix[2].x()),
+                _mm_load_ps(&matrix[3].x())
+            };
+
+            __m128 v0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+            __m128 v1 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
+            __m128 v2 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2));
+            __m128 v3 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3));
+
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 m0 = _mm_mul_ps(m[0], v0);
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 m1 = _mm_mul_ps(m[1], v1);
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 m2 = _mm_mul_ps(m[2], v2);
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 m3 = _mm_mul_ps(m[3], v3);
+
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 a0 = _mm_add_ps(m0, m1);
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 a1 = _mm_add_ps(m2, m3);
+            //NOLINTNEXTLINE(portability-simd-intrinsics)
+            __m128 a2 = _mm_add_ps(a0, a1);
+
+            Vector<4, float, Qualifier::Aligned> result;
+            _mm_store_ps(&result.x(), a2);
+            return result;
+        }
+
     };
 }

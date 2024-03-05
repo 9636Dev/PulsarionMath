@@ -37,5 +37,18 @@ namespace Pulsarion::Math
             }
             return result;
         }
+
+        inline constexpr static Vector<4, T, Qualifier::Aligned> VecMultiply(const Matrix<4, 4, T>& left, const Vector<4, T, Qualifier::Aligned>& right) noexcept
+        {
+            Vector<4, T, Qualifier::Aligned> result;
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                result[i] = left.Get(i, 0) * right[0] +
+                            left.Get(i, 1) * right[1] +
+                            left.Get(i, 2) * right[2] +
+                            left.Get(i, 3) * right[3];
+            }
+            return result;
+        }
     };
 }

@@ -101,9 +101,14 @@ namespace Pulsarion::Math
             return result;
         }
 
-        inline Matrix<R, C, T> operator*(Matrix<R, C, T> other) const noexcept
+        inline Matrix<R, C, T> operator*(const Matrix<R, C, T>& other) const noexcept
         {
             return MatrixFunctions<R, C, T>::Multiply(*this, other);
+        }
+
+        inline Vector<R, T, Qualifier::Aligned> operator*(const Vector<R, T, Qualifier::Aligned>& other) const noexcept
+        {
+            return MatrixFunctions<R, C, T>::VecMultiply(*this, other);
         }
     };
 }
